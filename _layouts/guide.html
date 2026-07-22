@@ -1,0 +1,4 @@
+---
+layout: default
+---
+<section class="page-hero"><div class="wrap"><p class="eyebrow">{{ page.project }} · {{ page.category }}</p><h1>{{ page.title }}</h1><p>{{ page.description }}</p></div></section><div class="doc-layout wrap"><aside><strong>Guide details</strong><dl><dt>Project</dt><dd>{{ page.project }}</dd><dt>Category</dt><dd>{{ page.category }}</dd>{% if page.source_url %}<dt>Source</dt><dd><a href="{{ page.source_url }}">GitHub repository</a></dd>{% endif %}</dl></aside><article class="prose">{{ content }}</article></div>
