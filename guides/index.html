@@ -1,0 +1,6 @@
+---
+layout: page
+title: Guides
+description: Installation, implementation, hardening, integration, and operational guidance organized by project.
+---
+<div class="filter-row"><input id="guide-filter" type="search" placeholder="Filter guides..."><select id="project-filter"><option value="">All projects</option>{% assign names = site.guides | map: 'project' | uniq | sort %}{% for name in names %}<option>{{ name }}</option>{% endfor %}</select></div><div class="guide-list big" id="guide-list">{% assign guides = site.guides | sort: 'project' %}{% for guide in guides %}<a data-project="{{ guide.project }}" data-search="{{ guide.title }} {{ guide.project }} {{ guide.category }}" href="{{ guide.url | relative_url }}"><span>{{ guide.project }} · {{ guide.category }}</span><strong>{{ guide.title }}</strong><p>{{ guide.description }}</p></a>{% endfor %}</div>
