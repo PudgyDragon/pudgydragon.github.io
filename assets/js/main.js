@@ -1,1 +1,107 @@
-const toggle=document.querySelector('.nav-toggle'),nav=document.querySelector('.site-header nav');if(toggle)toggle.addEventListener('click',()=>nav.classList.toggle('open'));const gf=document.querySelector('#guide-filter'),pf=document.querySelector('#project-filter');function filterGuides(){document.querySelectorAll('#guide-list>a').forEach(a=>{const q=(gf?.value||'').toLowerCase(),p=pf?.value||'';a.style.display=(!q||a.dataset.search.toLowerCase().includes(q))&&(!p||a.dataset.project===p)?'block':'none'})}gf?.addEventListener('input',filterGuides);pf?.addEventListener('change',filterGuides);const search=document.querySelector('#site-search');if(search){const items=[{% for guide in site.guides %}{title:{{ guide.title|jsonify }},meta:{{ guide.project|jsonify }},url:{{ guide.url|relative_url|jsonify }}},{% endfor %}{% for project in site.projects %}{title:{{ project.title|jsonify }},meta:'Project',url:{{ project.url|relative_url|jsonify }}},{% endfor %}];search.addEventListener('input',()=>{const q=search.value.toLowerCase(),out=document.querySelector('#search-results');if(q.length<2){out.innerHTML='';return}out.innerHTML=items.filter(x=>(x.title+' '+x.meta).toLowerCase().includes(q)).slice(0,8).map(x=>`<a href="${x.url}" style="display:block;background:#09172a;border:1px solid #183553;padding:10px 14px"><small>${x.meta}</small><br><strong>${x.title}</strong></a>`).join('')})}
+(() => {
+  'use strict';
+
+  const navToggle = document.querySelector('.nav-toggle');
+  const nav = document.querySelector('#site-navigation');
+
+  if (navToggle && nav) {
+    const closeNav = () => {
+      nav.classList.remove('open');
+      navToggle.classList.remove('active');
+      navToggle.setAttribute('aria-expanded', 'false');
+      navToggle.setAttribute('aria-label', 'Open navigation');
+    };
+
+    navToggle.addEventListener('click', () => {
+      const opening = !nav.classList.contains('open');
+      nav.classList.toggle('open', opening);
+      navToggle.classList.toggle('active', opening);
+      navToggle.setAttribute('aria-expanded', String(opening));
+      navToggle.setAttribute('aria-label', opening ? 'Close navigation' : 'Open navigation');
+    });
+
+    nav.addEventListener('click', (event) => {
+      if (event.target.closest('a')) closeNav();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeNav();
+    });
+  }
+
+  const guideFilter = document.querySelector('#guide-filter');
+  const projectFilter = document.querySelector('#project-filter');
+
+  const filterGuides = () => {
+    const query = (guideFilter?.value || '').trim().toLowerCase();
+    const project = projectFilter?.value || '';
+
+    document.querySelectorAll('#guide-list > a').forEach((item) => {
+      const matchesQuery = !query || (item.dataset.search || '').toLowerCase().includes(query);
+      const matchesProject = !project || item.dataset.project === project;
+      item.hidden = !(matchesQuery && matchesProject);
+    });
+  };
+
+  guideFilter?.addEventListener('input', filterGuides);
+  projectFilter?.addEventListener('change', filterGuides);
+
+  const searchInput = document.querySelector('#site-search');
+  const results = document.querySelector('#search-results');
+  const dataNode = document.querySelector('#search-data');
+
+  if (searchInput && results && dataNode) {
+    let items = [];
+    try {
+      items = JSON.parse(dataNode.textContent || '[]');
+    } catch (error) {
+      console.error('Unable to load the PudgyDragon search index.', error);
+    }
+
+    const clearResults = () => {
+      results.replaceChildren();
+      results.hidden = true;
+    };
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (query.length < 2) {
+        clearResults();
+        return;
+      }
+
+      const matches = items
+        .filter((item) => `${item.title} ${item.meta} ${item.description || ''}`.toLowerCase().includes(query))
+        .slice(0, 8);
+
+      results.replaceChildren();
+
+      if (!matches.length) {
+        const empty = document.createElement('p');
+        empty.className = 'search-empty';
+        empty.textContent = 'No matching guides or projects found.';
+        results.append(empty);
+      } else {
+        matches.forEach((item) => {
+          const link = document.createElement('a');
+          link.href = item.url;
+
+          const meta = document.createElement('small');
+          meta.textContent = item.meta || 'Knowledge base';
+
+          const title = document.createElement('strong');
+          title.textContent = item.title;
+
+          link.append(meta, title);
+          results.append(link);
+        });
+      }
+
+      results.hidden = false;
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.search-wrap')) clearResults();
+    });
+  }
+})();

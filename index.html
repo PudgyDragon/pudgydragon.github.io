@@ -4,7 +4,7 @@ title: PudgyDragon | Cybersecurity Engineering Knowledge Base
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero-background" role="img" aria-label="A veteran blue dragon in worn armor with a cracked belly plate, working in a cybersecurity server room beside peach energy drink cans."></div>
-  <div class="hero-shade"></div>
+  <div class="hero-shade" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-copy">
       <p class="eyebrow">Cybersecurity Engineering · Threat Intelligence · Blue Team</p>
@@ -15,48 +15,96 @@ title: PudgyDragon | Cybersecurity Engineering Knowledge Base
         <a class="button secondary" href="{{ '/projects/' | relative_url }}">View projects</a>
         <a class="button secondary hero-github" href="https://github.com/PudgyDragon">GitHub</a>
       </div>
-      <p class="terminal">🛡 Build. Detect. Defend. <b>&gt;_</b> Repeat.</p>
+      <p class="terminal"><span aria-hidden="true">◆</span> Build. Detect. Defend. <b>&gt;_</b> Repeat.</p>
     </div>
   </div>
 </section>
-<section class="search-wrap">
-  <label for="site-search">Search the knowledge base</label>
-  <input id="site-search" type="search" placeholder="Search guides, tools, STIGs, and troubleshooting...">
-  <div id="search-results"></div>
+
+<section class="knowledge-entry" aria-label="Search and browse technologies">
+  <div class="search-wrap">
+    <label for="site-search">Search the knowledge base</label>
+    <div class="search-field">
+      <input id="site-search" type="search" autocomplete="off" placeholder="Search guides, tools, STIGs, and troubleshooting...">
+      <span aria-hidden="true">⌕</span>
+    </div>
+    <div id="search-results" class="search-results" hidden></div>
+  </div>
+
+  <div class="tool-showcase wrap" aria-labelledby="tool-showcase-title">
+    <div class="tool-showcase-heading">
+      <div>
+        <p class="eyebrow">Platforms and tooling</p>
+        <h2 id="tool-showcase-title">Browse by technology</h2>
+      </div>
+      <a href="{{ '/projects/' | relative_url }}">All technologies →</a>
+    </div>
+
+    <div class="tool-strip">
+      {% assign showcase = "qradar,corelight,opencti,misp,xsoar,gigamon" | split: "," %}
+      {% for slug in showcase %}
+        {% assign project = site.projects | where_exp: "item", "item.slug == slug" | first %}
+        {% if project %}
+        <a class="tool-card" href="{{ project.url | relative_url }}">
+          <img src="{{ '/assets/images/tools/' | append: slug | append: '.svg' | relative_url }}" alt="" aria-hidden="true">
+          <div>
+            <h3>{{ project.title }}</h3>
+            <p>{{ project.description }}</p>
+            <b>View guides →</b>
+          </div>
+        </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
 </section>
-<section class="tool-showcase wrap" aria-labelledby="tool-showcase-title">
-  <div class="tool-showcase-heading">
+
+<section class="wrap section featured-projects">
+  <div class="section-heading">
+    <div><p class="eyebrow">Field manuals</p><h2>Featured projects</h2></div>
+    <a href="{{ '/projects/' | relative_url }}">View all projects →</a>
+  </div>
+  <div class="project-grid">
+    {% for project in site.projects limit: 8 %}
+    <a class="project-card" href="{{ project.url | relative_url }}">
+      <span class="project-icon">{{ project.title | slice: 0 }}</span>
+      <div><h3>{{ project.title }}</h3><p>{{ project.description }}</p><b>View guides →</b></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel-band">
+  <div class="wrap three-col">
     <div>
-      <p class="eyebrow">Platforms and tooling</p>
-      <h2 id="tool-showcase-title">Browse by technology</h2>
+      <p class="eyebrow">Recently added</p><h2>Practical guides</h2>
+      <div class="guide-list">
+        {% for guide in site.guides limit: 7 %}
+        <a href="{{ guide.url | relative_url }}"><span>{{ guide.project }}</span><strong>{{ guide.title }}</strong></a>
+        {% endfor %}
+      </div>
     </div>
-    <a href="{{ '/projects/' | relative_url }}">All technologies →</a>
-  </div>
-  <div class="tool-strip">
-    <a class="tool-card" href="{{ '/projects/qradar/' | relative_url }}">
-      <img src="{{ '/assets/images/tools/qradar.svg' | relative_url }}" alt="" aria-hidden="true">
-      <div><h3>QRadar</h3><p>SIEM implementation, DSM development, use cases, tuning, and troubleshooting.</p><b>View guides →</b></div>
-    </a>
-    <a class="tool-card" href="{{ '/projects/corelight/' | relative_url }}">
-      <img src="{{ '/assets/images/tools/corelight.svg' | relative_url }}" alt="" aria-hidden="true">
-      <div><h3>Corelight</h3><p>Zeek sensors, Fleet Manager, monitoring, installation, tuning, and operations.</p><b>View guides →</b></div>
-    </a>
-    <a class="tool-card" href="{{ '/projects/opencti/' | relative_url }}">
-      <img src="{{ '/assets/images/tools/opencti.svg' | relative_url }}" alt="" aria-hidden="true">
-      <div><h3>OpenCTI</h3><p>Threat intelligence platform deployment, connectors, feeds, and integrations.</p><b>View guides →</b></div>
-    </a>
-    <a class="tool-card" href="{{ '/projects/misp/' | relative_url }}">
-      <img src="{{ '/assets/images/tools/misp.svg' | relative_url }}" alt="" aria-hidden="true">
-      <div><h3>MISP</h3><p>Threat sharing, deployment, automation, API usage, and integrations.</p><b>View guides →</b></div>
-    </a>
-    <a class="tool-card" href="{{ '/projects/xsoar/' | relative_url }}">
-      <img src="{{ '/assets/images/tools/xsoar.svg' | relative_url }}" alt="" aria-hidden="true">
-      <div><h3>XSOAR</h3><p>SOAR platform engineering, integrations, playbooks, and automation.</p><b>View guides →</b></div>
-    </a>
-    <a class="tool-card" href="{{ '/projects/gigamon/' | relative_url }}">
-      <img src="{{ '/assets/images/tools/gigamon.svg' | relative_url }}" alt="" aria-hidden="true">
-      <div><h3>Gigamon</h3><p>Network visibility, deployment, certificates, filtering, and upgrades.</p><b>View guides →</b></div>
-    </a>
+    <div>
+      <p class="eyebrow">Browse by mission</p><h2>Knowledge areas</h2>
+      <div class="category-grid">
+        <a href="{{ '/guides/#engineering' | relative_url }}">Engineering</a>
+        <a href="{{ '/stig-library/' | relative_url }}">DoD STIGs</a>
+        <a href="{{ '/troubleshooting/' | relative_url }}">Troubleshooting</a>
+        <a href="{{ '/guides/#threat-intelligence' | relative_url }}">Threat Intelligence</a>
+        <a href="{{ '/guides/#network-security' | relative_url }}">Network Security</a>
+        <a href="{{ '/guides/#automation' | relative_url }}">Automation</a>
+      </div>
+    </div>
+    <div class="quote">
+      <blockquote>“The best defense is a good implementation—and the will to keep learning.”</blockquote>
+      <p>— PudgyDragon</p>
+      <img src="{{ '/assets/images/logo.svg' | relative_url }}" alt="PudgyDragon logo">
+    </div>
   </div>
 </section>
-<section class="wrap section featured-projects"><div class="section-heading"><div><p class="eyebrow">Field manuals</p><h2>Featured projects</h2></div><a href="{{ '/projects/' | relative_url }}">View all projects →</a></div><div class="project-grid">{% for project in site.projects limit: 8 %}<a class="project-card" href="{{ project.url | relative_url }}"><span class="project-icon">{{ project.title | slice: 0 }}</span><div><h3>{{ project.title }}</h3><p>{{ project.description }}</p><b>View guides →</b></div></a>{% endfor %}</div></section><section class="panel-band"><div class="wrap three-col"><div><p class="eyebrow">Recently added</p><h2>Practical guides</h2><div class="guide-list">{% for guide in site.guides limit: 7 %}<a href="{{ guide.url | relative_url }}"><span>{{ guide.project }}</span><strong>{{ guide.title }}</strong></a>{% endfor %}</div></div><div><p class="eyebrow">Browse by mission</p><h2>Knowledge areas</h2><div class="category-grid"><a href="{{ '/guides/#engineering' | relative_url }}">Engineering</a><a href="{{ '/stig-library/' | relative_url }}">DoD STIGs</a><a href="{{ '/troubleshooting/' | relative_url }}">Troubleshooting</a><a href="{{ '/guides/#threat-intelligence' | relative_url }}">Threat Intelligence</a><a href="{{ '/guides/#network-security' | relative_url }}">Network Security</a><a href="{{ '/guides/#automation' | relative_url }}">Automation</a></div></div><div class="quote"><blockquote>“The best defense is a good implementation—and the will to keep learning.”</blockquote><p>— PudgyDragon</p><img src="{{ '/assets/images/logo.svg' | relative_url }}" alt=""></div></div></section><section class="metrics"><div><strong>{{ site.projects | size }}</strong><span>Projects</span></div><div><strong>{{ site.guides | size }}</strong><span>Guides</span></div><div><strong>Blue</strong><span>Team focused</span></div><div><strong>Field</strong><span>Tested notes</span></div></section>
+
+<section class="metrics" aria-label="Knowledge base statistics">
+  <div><strong>{{ site.projects | size }}</strong><span>Projects</span></div>
+  <div><strong>{{ site.guides | size }}</strong><span>Guides</span></div>
+  <div><strong>Blue</strong><span>Team focused</span></div>
+  <div><strong>Field</strong><span>Tested notes</span></div>
+</section>
