@@ -1,1 +1,25 @@
-<header class="site-header"><a class="brand" href="{{ '/' | relative_url }}"><img src="{{ '/assets/images/logo.svg' | relative_url }}" alt=""><span><strong>PUDGY<span>DRAGON</span></strong><small>Build secure systems. Share knowledge.</small></span></a><button class="nav-toggle" aria-label="Toggle navigation">☰</button><nav><a href="{{ '/guides/' | relative_url }}">Guides</a><a href="{{ '/projects/' | relative_url }}">Projects</a><a href="{{ '/stig-library/' | relative_url }}">STIG Library</a><a href="{{ '/troubleshooting/' | relative_url }}">Troubleshooting</a><a href="{{ '/about/' | relative_url }}">About</a><a class="github" href="https://github.com/PudgyDragon">GitHub</a></nav></header>
+<header class="site-header" data-header>
+  <div class="header-inner">
+    <a class="brand" href="{{ '/' | relative_url }}" aria-label="PudgyDragon home">
+      <img src="{{ '/assets/images/logo.svg' | relative_url }}" alt="PudgyDragon dragon head logo" width="68" height="56">
+      <span class="brand-copy">
+        <strong>PUDGY<span>DRAGON</span></strong>
+        <small>Build Secure Systems. Share Knowledge.</small>
+      </span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav id="site-navigation" aria-label="Primary navigation">
+      <a href="{{ '/' | relative_url }}">Home</a>
+      <a href="{{ '/guides/' | relative_url }}">Guides</a>
+      <a href="{{ '/projects/' | relative_url }}">Projects</a>
+      <a href="{{ '/stig-library/' | relative_url }}">STIG Library</a>
+      <a href="{{ '/troubleshooting/' | relative_url }}">Troubleshooting</a>
+      <a href="{{ '/about/' | relative_url }}">About</a>
+      <a class="github" href="https://github.com/PudgyDragon" rel="me">GitHub</a>
+    </nav>
+  </div>
+</header>
