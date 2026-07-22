@@ -2,7 +2,23 @@
 layout: default
 title: PudgyDragon | Cybersecurity Engineering Knowledge Base
 ---
-<section class="hero"><div class="hero-copy"><p class="eyebrow">Cybersecurity Engineering · Threat Intelligence · Blue Team</p><h1>Engineering defenses.<br><span>Sharing knowledge.</span><br>Solving problems.</h1><p>Implementation guides, troubleshooting notes, and hard-earned lessons from the front lines of cybersecurity engineering.</p><div class="actions"><a class="button" href="{{ '/guides/' | relative_url }}">Browse guides</a><a class="button secondary" href="{{ '/projects/' | relative_url }}">View projects</a></div><p class="terminal">🛡 Build. Detect. Defend. <b>&gt;_</b> Repeat.</p></div><div class="hero-art"><img src="{{ '/assets/images/pudgy-dragon-hero.webp' | relative_url }}" alt="A veteran blue dragon in worn armor with a cracked belly plate, working in a cybersecurity server room beside peach energy drink cans."></div></section>
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-background" role="img" aria-label="A veteran blue dragon in worn armor with a cracked belly plate, working in a cybersecurity server room beside peach energy drink cans."></div>
+  <div class="hero-shade"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Cybersecurity Engineering · Threat Intelligence · Blue Team</p>
+      <h1 id="hero-title">Engineering defenses.<br><span>Sharing knowledge.</span><br>Solving problems.</h1>
+      <p>Implementation guides, troubleshooting notes, and hard-earned lessons from the front lines of cybersecurity engineering.</p>
+      <div class="actions">
+        <a class="button" href="{{ '/guides/' | relative_url }}">Browse guides</a>
+        <a class="button secondary" href="{{ '/projects/' | relative_url }}">View projects</a>
+        <a class="button secondary hero-github" href="https://github.com/PudgyDragon">GitHub</a>
+      </div>
+      <p class="terminal">🛡 Build. Detect. Defend. <b>&gt;_</b> Repeat.</p>
+    </div>
+  </div>
+</section>
 <section class="search-wrap">
   <label for="site-search">Search the knowledge base</label>
   <input id="site-search" type="search" placeholder="Search guides, tools, STIGs, and troubleshooting...">
