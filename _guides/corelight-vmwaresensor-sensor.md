@@ -1,12 +1,12 @@
 ---
-title: "Sensor"
+title: "Corelight Sensor Deployment"
 project: "Corelight"
 category: "Engineering Guide"
-description: "A practical engineering guide for Corelight."
+description: "Deploy a Corelight Software Sensor on Proxmox Virtual Environment."
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/Sensor.md"
 ---
 
-# Corelight Sensor on Proxmox
+# Introduction
 ### Advisory
 Please note, I haven't been able to do a fresh install using Corelight's initial OVA files. This is because they use a seeding process that requires the use of ESXi. Unfortunately (in this scenario) they encrypt their drives and only Corelight Support has root access, so it's not really possible to seed it without using ESXi (that I'm aware of). With that said, once you create a VM with ESXi, you are able to migrate it really easily over to Proxmox.
 
