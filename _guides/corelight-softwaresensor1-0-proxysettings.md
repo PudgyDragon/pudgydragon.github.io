@@ -1,12 +1,12 @@
 ---
-title: "Corelight Proxy Settings"
+title: "Corelight Proxy Configuration"
 project: "Corelight"
 category: "Engineering Guide"
-description: "Configuring Proxy Settings for Corelight."
+description: "Configure a Corelight Software Sensor to operate behind an enterprise proxy."
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/SoftwareSensor1.0/ProxySettings.md"
 ---
 
-# Proxy Settings
+# Introduction
 If your organization is anything like mine, your network is probably set up with a proxy. The Corelight Software Sensor 1.0 guide doesn't have instructions for setting up behind a proxy. Hopefully this guide will help you. Please use these steps in conjunction with the original Corelight Software Sensor 1.0 guide.
 
 ## Note
