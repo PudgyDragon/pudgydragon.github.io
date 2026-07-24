@@ -6,9 +6,13 @@ description: "Configure a Proxmox VE host to support Corelight virtual appliance
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/Proxmox_Host_Settings.md"
 ---
 
-# Proxmox Host Settings
+# Introduction
 
-If you have your Fleet Manager and Sensor running on two VMs on the same Proxmox host, you will need to make sure you have the appropriate network settings to allow it. Yours may look different than ours, but based on having Fleet Manager and a single Sensor, our settings look like this:
+When deploying Corelight Fleet Manager and Corelight Software Sensors as separate virtual machines on the same Proxmox VE host, the host's network configuration must be configured to support communication between the virtual appliances. While your environment may differ depending on your hardware and network design, the following configuration provides a recommended baseline for a deployment consisting of one Fleet Manager and one Software Sensor.
+
+## Host Configuration
+
+The following network configuration was used for this deployment:
 
 ```
 Name     | Type            | Active    | Autostart     | VLAN aware     | Ports/Slaves    | Bond Mode    | CIDR         | Gateway
