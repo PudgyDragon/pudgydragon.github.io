@@ -1,8 +1,8 @@
 ---
-title: "Proxysettings"
+title: "Corelight Proxy Settings"
 project: "Corelight"
 category: "Engineering Guide"
-description: "A practical engineering guide for Corelight."
+description: "Configuring Proxy Settings for Corelight."
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/SoftwareSensor1.0/ProxySettings.md"
 ---
 
