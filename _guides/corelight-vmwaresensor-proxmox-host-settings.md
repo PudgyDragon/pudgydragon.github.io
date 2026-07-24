@@ -1,8 +1,8 @@
 ---
-title: "Proxmox Host Settings"
+title: "Proxmox Host Configuration"
 project: "Corelight"
 category: "Engineering Guide"
-description: "A practical engineering guide for Corelight."
+description: "Configure a Proxmox VE host to support Corelight virtual appliances."
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/Proxmox_Host_Settings.md"
 ---
 
