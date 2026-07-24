@@ -2,11 +2,10 @@
 title: "Data Node Links"
 project: "QRadar"
 category: "Engineering Guide"
-description: "A practical engineering guide for QRadar."
+description: "Adding Data Nodes to a QRadar Console or Event Processor."
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/Data%20Node%20Links"
 ---
 
-Adding Data Nodes to Console or Event Processor
 
 Navigate to Admin > System and License Management > Display Systems
 Select a Data Node
