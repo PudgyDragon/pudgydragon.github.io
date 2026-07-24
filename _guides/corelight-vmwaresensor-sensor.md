@@ -7,11 +7,20 @@ source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/Sen
 ---
 
 # Introduction
-### Advisory
-Please note, I haven't been able to do a fresh install using Corelight's initial OVA files. This is because they use a seeding process that requires the use of ESXi. Unfortunately (in this scenario) they encrypt their drives and only Corelight Support has root access, so it's not really possible to seed it without using ESXi (that I'm aware of). With that said, once you create a VM with ESXi, you are able to migrate it really easily over to Proxmox.
+
+Corelight Software Sensors provide network visibility by inspecting traffic and generating high-fidelity security telemetry for threat detection, network monitoring, and forensic analysis. This guide documents the process of deploying a Corelight Software Sensor on Proxmox Virtual Environment (VE), including the migration of a seeded virtual appliance from VMware ESXi.
+
+Because Corelight's initial deployment process relies on VMware ESXi to perform the appliance seeding process, a Software Sensor cannot currently be deployed directly from the original OVA files on Proxmox VE. This guide assumes the sensor has been successfully seeded using VMware vSphere and focuses on migrating the virtual appliance to Proxmox for long-term operation.
+
+## Advisory
+At the time of writing, I have not been able to perform the initial Corelight Software Sensor deployment directly on Proxmox VE. The supplied OVA requires an initial seeding process that is performed through VMware ESXi using either a Customer ID or an offline seeding key. Additionally, the appliance uses encrypted disks and root access is restricted to Corelight Support, preventing modifications to the initial deployment process.
+
+Once the appliance has been seeded and the initial setup is complete, it can be shut down, exported from ESXi as an OVF template, and migrated to Proxmox VE without issue.
 
 ## ESXi
-Unfortunately, I haven't figured out how to seed Corelight on Proxmox itself. You will need to use vSphere to seed Corelight with the GUI that gives you the option for Customer ID or offling seedling key. The guide for that is straight forward and there are no alterations that need to be made for that. Once you have it seeded, and have gone through the process of rebooting it as the guide says to do, you will need to shut down the VM and export it as a template. This will give you ovf and vmdk files that you will need to SCP onto your Proxmox host.
+Complete the initial deployment using VMware vSphere by following the Corelight deployment guide. During the first boot, you will be prompted to activate the appliance using either your Customer ID or an offline seeding key. After the deployment wizard completes and the appliance has rebooted successfully, shut down the virtual machine and export it as an OVF template.
+
+The exported template will contain the OVF and VMDK files required for migration. Transfer these files to your Proxmox VE host using SCP before continuing with the remainder of this guide.
 
 ## Proxmox Import
 Once your ova files (ovf, vmdk) are on your Proxmox host, you will need to create a new VM with them running the following commands:
