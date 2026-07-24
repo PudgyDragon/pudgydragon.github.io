@@ -1,12 +1,12 @@
 ---
-title: "Fleetmanager"
+title: "Corelight Fleet Manager Deployment"
 project: "Corelight"
 category: "Engineering Guide"
-description: "A practical engineering guide for Corelight."
+description: "Deploy Corelight Fleet Manager on Proxmox Virtual Environment."
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/FleetManager.md"
 ---
 
-# Corelight Fleet Manager on Proxmox
+# Introduction
 As you probably guessed from the title, this is a guide for getting Corelight VMware v27.7 installed and running on Proxmox. There are plenty of guides online to get you up and running with a Proxmox server if you don't already have one, but I will also be creating a guide on getting it set up too in the future. For our installation of Fleet Manager, we installed RHEL 8.8 as a VM on Proxmox. Our servers are also behind a proxy server.
 
 ### Please note, we had some issues setting up Fleet Manager using the guide given to us from Corelight. I was able to get it running by changing a few of their settings. It will only be used during testing and not in production.
