@@ -1,12 +1,12 @@
 ---
-title: "Misp Connector"
+title: "OpenCTI MISP Integration"
 project: "OpenCTI"
 category: "Threat Intelligence"
-description: "A practical threat intelligence for OpenCTI."
+description: "Configure the MISP connector for OpenCTI."
 source_url: "https://github.com/PudgyDragon/OpenCTI/blob/main/Connectors/MISP_connector.md"
 ---
 
-<h1>MISP Connector for OpenCTI</h1>
+<h1>Introduction</h1>
 <p>Self explanatory. These are the settings I used for a MISP connector that works with OpenCTI on a 
 network behind a proxy. You can find the official documentation for the connector here:</p>
 <a href="https://github.com/OpenCTI-Platform/connectors/tree/master/external-import/misp">MISP Connector</a>
