@@ -6,26 +6,72 @@ description: "Reference commonly used CLI commands for administering and trouble
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/MISC/commands.md"
 ---
 
-# Introduction
-Just a reference for some helpful commands for certain Gigamon releases.
+## Introduction
 
-## Port Filter
-These commands help you configure a filter to drop PCAP traffic at certain ports
+This document provides a collection of commonly used Gigamon CLI commands for administration, configuration, and troubleshooting. The commands included here are intended as a quick reference for day-to-day operational tasks and may vary between software releases.
+
+## Configure Port Filters
+
+Port filters can be used to drop traffic based on the source or destination port before forwarding traffic to downstream tools.
+
+### Create a Source Port Filter
+
+```bash
+config filter deny portsrc <port> alias <filter-alias>
 ```
-config filter deny portsrc <port> alias <new-filter-alias>
-config filter deny portdst <port> alias <new-filter-alias>
+
+Example:
+
+```bash
+config filter deny portsrc 514 alias DropSRC514
 ```
-Example: `config filter deny portdst 514 alias DropDST514`
-Afterwards you need to save it to a port
+
+### Create a Destination Port Filter
+
+```bash
+config filter deny portdst <port> alias <filter-alias>
 ```
+
+Example:
+
+```bash
+config filter deny portdst 514 alias DropDST514
+```
+
+### Apply a Port Filter
+
+Assign the filter to the desired monitoring port.
+
+```bash
 config port-filter <port> <filter-alias>
 ```
-Example: `config port-filter 3 DropDST514`
 
-## Save Configuration
-When you're done making changes, save it to a config file that will be used during the next boot
+Example:
+
+```bash
+config port-filter 3 DropDST514
 ```
-config save <file-name>.cfg nb
+
+## Save the Running Configuration
+
+After making configuration changes, save the running configuration to a bootable configuration file.
+
+```bash
+config save <filename>.cfg nb
 ```
-Example: `config save CONFIG24JUNE2024.cfg nb`
-When you're done making changes, give it a good ole `reboot` for the configurations to take affect.
+
+Example:
+
+```bash
+config save CONFIG24JUNE2024.cfg nb
+```
+
+Reboot the appliance to load the newly saved configuration.
+
+```bash
+reboot
+```
+
+## Additional Resources
+
+- Refer to the Gigamon CLI Reference Guide for the software release running in your environment.
