@@ -30,26 +30,22 @@ Add the following service beneath the existing `services:` section:
 connector-cisa-known-exploited-vulnerabilities:
   image: opencti/connector-cisa-known-exploited-vulnerabilities:your-version
   environment:
-    - OPENCTI_URL=https://opencti-fqdn
-    - OPENCTI_TOKEN=CISA_User_Token
+    - OPENCTI_URL=https://opencti.example.com
+    - OPENCTI_TOKEN=<opencti-connector-token>
     - CONNECTOR_ID=${CONNECTOR_KEV_ID}
     - CONNECTOR_NAME=CISA KEV
     - CONNECTOR_SCOPE=cisa
     - CONNECTOR_LOG_LEVEL=info
     - CONNECTOR_DURATION_PERIOD=P1D
-
     - CISA_CATALOG_URL=https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
     - CISA_CREATE_INFRASTRUCTURES=true
     - CISA_TLP=TLP:CLEAR
-
-    - HTTP_PROXY=http://proxy:port
-    - HTTPS_PROXY=http://proxy:port
-    - NO_PROXY=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,your-fqdn,your-ipv4
-
-    - http_proxy=http://proxy:port
-    - https_proxy=http://proxy:port
-    - no_proxy=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,your-fqdn,your-ipv4
-
+    - HTTP_PROXY=http://proxy.example.com:8080
+    - HTTPS_PROXY=http://proxy.example.com:8080
+    - NO_PROXY=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,opencti.example.com
+    - http_proxy=http://proxy.example.com:8080
+    - https_proxy=http://proxy.example.com:8080
+    - no_proxy=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,opencti.example.com
   restart: always
 ```
 
@@ -91,7 +87,6 @@ docker compose up -d
 
 Log in to the OpenCTI web interface and verify that:
 
-- The CISA KEV connector appears under **Data > Ingestion > Connectors**.
 - The connector reports a healthy status.
 - CISA KEV data is being imported successfully.
 - Known exploited vulnerabilities appear in OpenCTI.
