@@ -6,7 +6,7 @@ description: "Legacy STIG implementation procedures for IBM QRadar 7.5.0 Update 
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/STIG.md"
 ---
 
-# Legacy IBM QRadar STIG Implementation Guide
+# Introduction
 
 > **Legacy Documentation**
 >
