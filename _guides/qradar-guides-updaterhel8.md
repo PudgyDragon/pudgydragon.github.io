@@ -6,7 +6,7 @@ description: "Upgrade IBM QRadar 7.5 Update Package 7 to Update Package 8, inclu
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/UpdateRHEL8.md"
 ---
 
-# Introduction
+## Introduction
 
 IBM QRadar 7.5 Update Package 8 introduces one of the most significant upgrades in the QRadar 7.5 lifecycle by migrating the operating system from Red Hat Enterprise Linux 7 to Red Hat Enterprise Linux 8.
 
