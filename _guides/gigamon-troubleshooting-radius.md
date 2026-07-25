@@ -1,12 +1,12 @@
 ---
-title: "Radius"
+title: "Gigamon RADIUS Troubleshooting"
 project: "Gigamon"
 category: "Troubleshooting"
-description: "A practical troubleshooting for Gigamon."
+description: "Troubleshoot RADIUS authentication issues in Gigamon."
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/Troubleshooting/RADIUS.md"
 ---
 
-# RADIUS Weirdness
+# Introduction
 Noticed when RADIUS is enabled, you must have Local set as First Priority, otherwise there will be issues with communication between the Fabric Manager and nodes. You may have issues signing into CLI with local credentials as well, and will
 restricted to only using your RADIUS credentials. You also can't use the GUI of the FM to change settings for nodes when this is the case. If this is the case, you may be able to use the following fix that I was able to use.
 
