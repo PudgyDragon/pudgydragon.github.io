@@ -6,7 +6,7 @@ description: "Resolve QRadar application errors caused by duplicate custom event
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Troubleshooting/ApplicationError.md"
 ---
 
-# Introduction
+## Introduction
 
 QRadar may display application errors or fail to group search results when a custom event property shares the same name as a built-in event property.
 
