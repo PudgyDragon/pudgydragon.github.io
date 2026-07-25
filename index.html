@@ -3,7 +3,11 @@ layout: default
 title: PudgyDragon | Cybersecurity Engineering Knowledge Base
 ---
 <section class="hero" aria-labelledby="hero-title">
-  <div class="hero-background" role="img" aria-label="A veteran blue dragon in worn armor with a cracked belly plate, working in a cybersecurity server room beside peach energy drink cans."></div>
+  <img
+    class="hero-background"
+    src="{{ '/assets/images/pudgy-dragon-hero.webp' | relative_url }}"
+    alt="A veteran blue dragon in worn armor with a cracked belly plate, working in a cybersecurity server room beside peach energy drink cans."
+  >
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-copy">
@@ -40,7 +44,7 @@ title: PudgyDragon | Cybersecurity Engineering Knowledge Base
     </div>
 
     <div class="tool-strip">
-      {% assign showcase = "qradar,security-analytics,opencti,tippingpoint,corelight,gigamon" | split: "," %}
+      {% assign showcase = "qradar,corelight,opencti,misp,xsoar,gigamon" | split: "," %}
       {% for slug in showcase %}
         {% assign project = site.projects | where_exp: "item", "item.slug == slug" | first %}
         {% if project %}
