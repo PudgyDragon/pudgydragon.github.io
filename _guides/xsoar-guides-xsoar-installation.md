@@ -1,9 +1,9 @@
 ---
-category: Engineering Guide
-description: A practical engineering guide for XSOAR.
-project: XSOAR
+title: "Install Cortex XSOAR on Red Hat Enterprise Linux"
+project: "XSOAR"
+category: "Engineering Guide"
+description: "Deploy Cortex XSOAR 6.14 on Red Hat Enterprise Linux 9.6 in an on-premises environment, including STIG considerations, prerequisite configuration, and post-installation setup."
 source_url: "https://github.com/PudgyDragon/XSOAR/blob/main/Guides/XSOAR_Installation.md"
-title: Xsoar Installation
 ---
 
 ## Introduction
@@ -23,7 +23,7 @@ deployment-focused.
 > This guide assumes you are performing the installation as the `root`
 > user (for example, after running `sudo su`).
 
-## STIG Requirement
+## Enable FIPS During Installation (Optional)
 
 If installing in a STIG environment and FIPS compliance is required,
 enable FIPS during the RHEL installation.
@@ -43,45 +43,23 @@ This guide was validated using:
 
 ## System Requirements
 
-### Production Environment
+The following hardware and partitioning recommendations were used during our deployment. Adjust these values as appropriate for your environment.
 
--   CPU: 16 CPU Cores
--   Memory: 32 GB RAM
--   Storage: 1 TB SSD with a minimum of 3k dedicated IOPS
--   /var: 900 GB
--   /tmp: 10 GB
--   /var/lib/demisto: 1 TB
-
-If using **Podman**:
-
--   /home: 150 GB
-
-If using **Docker**:
-
--   /var/lib/docker: 150 GB
-
-### Development Environment
-
--   CPU: 8 CPU Cores
--   Memory: 16 GB RAM
--   Storage: 500 GB SSD
--   /var: 450 GB
--   /tmp: 10 GB
--   /var/lib/demisto: 200 GB
-
-If using **Podman**:
-
--   /home: 70 GB
-
-If using **Docker**:
-
--   /var/lib/docker: 70 GB
+| Component | Production | Development |
+|-----------|------------|-------------|
+| **CPU** | 16 CPU Cores | 8 CPU Cores |
+| **Memory** | 32 GB RAM | 16 GB RAM |
+| **Storage** | 1 TB SSD (minimum 3k dedicated IOPS) | 500 GB SSD |
+| **`/var`** | 900 GB | 450 GB |
+| **`/tmp`** | 10 GB | 10 GB |
+| **`/var/lib/demisto`** | 1 TB | 200 GB |
+| **`/home`** *(Podman)* | 150 GB | 70 GB |
+| **`/var/lib/docker`** *(Docker)* | 150 GB | 70 GB |
 
 > **Note**
 >
-> Our deployment used Podman. Adjust the partition layout as needed for
-> your environment while following your organization's standard RHEL
-> installation and DISA STIG requirements.
+> This deployment used **Podman**. Adjust partition sizes as necessary to meet your organization's storage requirements, RHEL installation standards, and any applicable DISA STIG guidance.
+
 
 ## Signed Installer and Public Key
 
