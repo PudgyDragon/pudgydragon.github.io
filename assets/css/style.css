@@ -399,3 +399,85 @@ button, input, select { font: inherit; }
   .hero-inner { padding-bottom: 38px; }
   .button { padding-inline: 14px; }
 }
+
+/* Mobile guide width and overflow safeguards */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.doc-layout,
+.doc-layout > *,
+.prose {
+  min-width: 0;
+}
+
+.prose {
+  width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.prose a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.prose pre {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 700px) {
+  .page-hero .wrap,
+  .doc-layout.wrap {
+    width: calc(100% - 32px);
+    max-width: none;
+  }
+
+  .page-hero {
+    padding: 48px 0 42px;
+  }
+
+  .page-hero h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    overflow-wrap: anywhere;
+  }
+
+  .doc-layout {
+    gap: 0;
+  }
+
+  .doc-layout aside {
+    width: 100%;
+    margin-top: 38px;
+  }
+
+  .doc-layout .prose {
+    max-width: 100%;
+    padding-top: 52px;
+  }
+
+  .prose pre {
+    padding: 14px;
+    border-radius: 7px;
+    font-size: .82rem;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.35rem;
+  }
+}
