@@ -6,101 +6,168 @@ description: "Deploy Corelight Fleet Manager on Proxmox Virtual Environment."
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/FleetManager.md"
 ---
 
-# Introduction
-As you probably guessed from the title, this is a guide for getting Corelight VMware v27.7 installed and running on Proxmox. There are plenty of guides online to get you up and running with a Proxmox server if you don't already have one, but I will also be creating a guide on getting it set up too in the future. For our installation of Fleet Manager, we installed RHEL 8.8 as a VM on Proxmox. Our servers are also behind a proxy server.
+## Introduction
 
-### Please note, we had some issues setting up Fleet Manager using the guide given to us from Corelight. I was able to get it running by changing a few of their settings. It will only be used during testing and not in production.
+Corelight Fleet Manager provides centralized management for Corelight sensors, allowing administrators to manage software updates, licensing, and sensor configuration from a single interface.
 
-## Requirements
-Make sure that when you have installed RHEL 8 that you make partitions as required by Corelight. I forgot to do this and had to manually create them. Save some time by doing it right the first time! These are the numbers I used:
-- /boot: 1G
-- /: 44G
-- SWAP: 5G
-- /tmp: 20G
-- /var: 80G
+This guide documents the deployment of Corelight Fleet Manager on Red Hat Enterprise Linux (RHEL) 8.8 running as a virtual machine on Proxmox Virtual Environment (PVE). It also documents deployment issues encountered during testing and the corresponding workarounds.
 
-## Proxmox Settings
-### Hardware Settings
-You should try to use these settings if possible for setting up Fleet Manager:
+> **Note:** This guide supplements the official Corelight deployment documentation. If your environment requires an outbound proxy, refer to the **Corelight Proxy Configuration** guide before proceeding.
+
+## Advisory
+
+The deployment workarounds documented later in this guide were developed during testing to resolve startup issues with the `corelight-fleetd` service.
+
+- These changes should **not** be used in production environments.
+- For production deployments, work with Corelight Support to identify the underlying cause instead of relying on the documented workarounds.
+
+## Prerequisites
+
+Before beginning the deployment:
+
+- Install Red Hat Enterprise Linux 8.8.
+- Configure the required disk partitions.
+- Deploy the virtual machine on Proxmox VE.
+- If required, configure proxy settings before installing Corelight packages.
+
+## Recommended Disk Layout
+
+The following partition layout was used during testing.
+
+| Mount Point | Size |
+|-------------|------|
+| `/boot` | 1 GB |
+| `/` | 44 GB |
+| `swap` | 5 GB |
+| `/tmp` | 20 GB |
+| `/var` | 80 GB |
+
+Creating the partitions during the operating system installation is significantly easier than resizing them afterward.
+
+## Recommended Proxmox Configuration
+
+### Hardware
+
 - Memory: 32 GiB
-- Processors: 4 (1 socket, 4 cores)
-- Bios: SeaBIOS
-- SCSI Controller: VirtIO SCSI single
-- Hard Disk (scsi0): 50G
-- Hard Disk (scsi1): 100G
-- Network Device (net0): virtio=(mac),bridge=vmbr0
-### Options
-- Boot Order: scsi0
+- Processors: 4 vCPUs (1 Socket / 4 Cores)
+- BIOS: SeaBIOS
+- SCSI Controller: VirtIO SCSI Single
+- Primary Disk (`scsi0`): 50 GB
+- Secondary Disk (`scsi1`): 100 GB
+- Network Adapter: VirtIO
 
-## Corelight Stable Package Repository
-Once you have RHEL 8.8 set up on Proxmox, you should be able to follow the guide with minor changes to account for the proxy server. Unfortunately, you can't run the initial script as it; you will need to download it and modify an internal `curl` command.
+### Boot Order
 
-Add your proxy to the `/etc/yum.conf` file under `[main]`
-```
-vim /etc/yum.conf
-proxy=http://proxy:port
-```
-Begin downloading the Corelight Stable package repository
-```
-curl -O --proxy "http://proxy:port" "https://packages.corelight.com/install/repositories/corelight/stable/script.rpm.sh"
-vim script.rpm.sh
-# The curl command to changes will be near the bottom
-curl -sSf --proxy "http://proxy:port" "${yum_repo_config_url}" > $yum_repo_path
-# If you're still having issues, you may have to run this to get the stable repository
-curl -sSf --proxy "http://proxy:port" "https://packagecloud.io/install/repositories/corelight/stable/config_file.repo?os=rhel&dist=8&source=script"
-# Continue the guide
-sudo chmod +x script.rpm.sh
-sudo ./script.rpm.sh
-```
-If you're using a local entitlement server for RHEL that you don't need to use the proxy for (because it won't allow it), you can specify which yum repositories to not have a proxy for using a command similar to this:
-```
-subscription-manager repo-override --repo "rhel....-rpms" --add=proxy:_none_
-```
-Replacing the "rhel....-rpms" with the name of the repository you don't need to use the proxy for. This will bypass any repositories used through your local entitlement server, allowing the proxy to only be used for external repositories like Corelight.
+- `scsi0`
 
+## Configure the Corelight Repository
 
-Some packages may not install because they're not found (we had this issue with pygpgme). We were able to run the following and get it to work fine:
+If your deployment requires an enterprise proxy, complete the additional proxy configuration described in the **Corelight Proxy Configuration** guide before continuing.
+
+Download the Corelight repository installation script:
+
+```bash
+curl -O https://packages.corelight.com/install/repositories/corelight/stable/script.rpm.sh
 ```
+
+Modify the script if proxy support is required.
+
+Install the repository:
+
+```bash
+chmod +x script.rpm.sh
+
+./script.rpm.sh
+```
+
+If required, configure any local Red Hat entitlement repositories to bypass the proxy.
+
+Example:
+
+```bash
+subscription-manager repo-override --repo "<repository-name>" --add=proxy:_none_
+```
+
+If package dependencies fail to install, install the required packages manually.
+
+Example:
+
+```bash
 yum install gpgme yum-utils
 ```
-Follow the rest of the guide to see if you're able to download Fleet Manager the way it's intended. If you're having issues getting the corelight-fleetd.service to start, come back and try the next steps
 
-## Corelight Service Doesn't Start
-If you're reading this, your service probably didn't start. We had this issue because permissions weren't being properly set somewhere. I was able to bypass this by setting some of the values to root. 
+Continue following the Corelight installation guide.
 
-***Again, please note this should not be used in a production environment, work with Corelight Support to get it set up properly without having to make my modifications.***
+## Troubleshooting Service Startup
 
-Instead of setting permissions for the certificate file to corelight-fleetd, change it to:
-```
+If the `corelight-fleetd` service fails to start after completing the installation, verify the service logs before applying the workaround described below.
+
+During testing, permission-related issues prevented the service from starting successfully.
+
+### Modify Certificate Ownership
+
+```bash
 chown root:corelight-fleetd /etc/corelight-fleetd.pem
 ```
-You will then need to make two more modifications, the first being:
-```
+
+### Modify the Systemd Service
+
+Edit the service definition:
+
+```bash
 vim /etc/systemd/system/corelight-fleetd.service
-# Comment out:
+```
+
+Comment out:
+
+```text
 User=corelight-fleetd
 Group=corelight-fleetd
-# Add:
+```
+
+Replace with:
+
+```text
 User=root
 Group=root
 ```
-Lastly, make this modification:
-```
-vim /usr/bin/corelight-fleetd
-# Comment out ther first section that looks for root user and switches to corelight-fleetd
 
-#user="$(id -u)"
-#if [ "$user" = '0' ]; then
-#    script=$(readlink -f "$0")
-#    exec sudo -u corelight-fleetd "$script" "$@"
-#fi
+### Modify the Startup Script
+
+Edit:
+
+```bash
+vim /usr/bin/corelight-fleetd
 ```
-Run the following commands to make sure the daemon and docker are properly configured:
-```
+
+Comment out the section that drops privileges from the `root` user to `corelight-fleetd`.
+
+## Reload Systemd
+
+Reload the service definitions:
+
+```bash
 systemctl daemon-reload
+```
+
+Restart Docker:
+
+```bash
 systemctl restart docker
 ```
-You should be able to start Corelight now and have it working:
-```
+
+Start the Fleet Manager service:
+
+```bash
 systemctl start corelight-fleetd
 ```
+
+## Verification
+
+Verify that the service is running successfully.
+
+```bash
+systemctl status corelight-fleetd
+```
+
+Confirm that Fleet Manager is accessible through the web interface and that no service startup errors are reported.
