@@ -44,7 +44,7 @@ title: PudgyDragon | Cybersecurity Engineering Knowledge Base
     </div>
 
     <div class="tool-strip">
-      {% assign showcase = "qradar,corelight,opencti,misp,xsoar,gigamon" | split: "," %}
+      {% assign showcase = "qradar,security-analytics,corelight,opencti,tippingpoint,gigamon" | split: "," %}
       {% for slug in showcase %}
         {% assign project = site.projects | where_exp: "item", "item.slug == slug" | first %}
         {% if project %}
