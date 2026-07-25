@@ -30,16 +30,15 @@ Add the following service beneath the existing `services:` section.
 connector-alienvault:
   image: opencti/connector-alienvault:latest
   environment:
-    - OPENCTI_URL=https://opencti-url
-    - OPENCTI_TOKEN=AlienVault_User_Token
+    - OPENCTI_URL=https://opencti.example.com
+    - OPENCTI_TOKEN=<opencti-connector-token>
     - CONNECTOR_ID=${CONNECTOR_ALIENVAULT_ID}
     - CONNECTOR_NAME=AlienVault
     - CONNECTOR_SCOPE=alienvault
     - CONNECTOR_LOG_LEVEL=error
     - CONNECTOR_DURATION_PERIOD=PT30M
-
     - ALIENVAULT_BASE_URL=https://otx.alienvault.com
-    - ALIENVAULT_API_KEY=Your_API_Key
+    - ALIENVAULT_API_KEY=<alienvault-api-key>
     - ALIENVAULT_TLP=White
     - ALIENVAULT_CREATE_OBSERVABLES=true
     - ALIENVAULT_CREATE_INDICATORS=true
@@ -52,17 +51,13 @@ connector-alienvault:
     - ALIENVAULT_ENABLE_RELATIONSHIPS=true
     - ALIENVAULT_ENABLE_ATTACK_PATTERNS_INDICATES=true
     - ALIENVAULT_DEFAULT_X_OPENCTI_SCORE=50
-
-    - HTTP_PROXY=http://proxy:port
-    - HTTPS_PROXY=http://proxy:port
-    - NO_PROXY=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,your-fqdn,your-ipv4
-
-    - http_proxy=http://proxy:port
-    - https_proxy=http://proxy:port
-    - no_proxy=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,your-fqdn,your-ipv4
-
+    - HTTP_PROXY=http://proxy.example.com:8080
+    - HTTPS_PROXY=http://proxy.example.com:8080
+    - NO_PROXY=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,opencti.example.com
+    - http_proxy=http://proxy.example.com:8080
+    - https_proxy=http://proxy.example.com:8080
+    - no_proxy=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,opencti.example.com
   restart: always
-
   depends_on:
     - opencti
 ```
@@ -97,6 +92,5 @@ docker compose up -d
 
 Log in to the OpenCTI web interface and verify that:
 
-- The AlienVault connector appears under **Data > Ingestion > Connectors**.
 - The connector reports a healthy status.
 - AlienVault data is being imported successfully.
