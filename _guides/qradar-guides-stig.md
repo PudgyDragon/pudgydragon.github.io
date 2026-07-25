@@ -1,304 +1,1030 @@
 ---
-title: "Stig"
+title: "Legacy IBM QRadar STIG Implementation Guide"
 project: "QRadar"
 category: "STIG"
-description: "A practical stig for QRadar."
+description: "Legacy STIG implementation procedures for IBM QRadar 7.5.0 Update 6. Preserved for historical reference and not intended for newer QRadar releases."
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/STIG.md"
 ---
 
-# How To STIG QRadar 7.5.0 Update 6
-### IBM Federal Sales Engineering
-### This is a guide provided by an IBM Sales Engineer to STIG QRadar. Permission to post the guide here was given by Christian Reyes.
-<p>By: Christian L. Reyes</p>
-<p>Date: June 15, 2023</p>
-<p>Updated: July 10, 2023</p>
+# Legacy IBM QRadar STIG Implementation Guide
 
-## DISCLAIMER
-<p>IBM QRadar 7.5.0 Security Technical Implementation Guide:</p>
-<p>https://www.ibm.com/docs/en/qsip/7.5?topic=guide-qradar-configuration-highly-secure-environments</p>
-<p>The above guide is only listed as a reference, however, do not use it. This above guide is incorrect and will cause system failure. This has already been tested in the field with a live customer and caused massive downtime and factory reinstall.</p>
-<p>NOTE: Pay close attention to this guide. The DISA STIG can completely break QRadar and require emergency remedial action. This remedial action must be done for physical servers from live USB drive and access to the physical server. This remedial action for software appliances requires access to the hypervisor console and QRadar 7.5.0 Update 4 ISO mounted to the VM. These remedial actions will be in how-to-guide "Disaster Recovery after GRUB2 Modification".</p>
+> **Legacy Documentation**
+>
+> This guide was written for **IBM QRadar 7.5.0 Update 6** and should not be used for newer QRadar releases.
+>
+> Configuration files, hardening behavior, recovery procedures, and IBM-supported implementation methods have changed since this guide was published. Applying these procedures to a newer release may create an unsupported configuration, prevent the appliance from booting, or require emergency recovery.
+>
+> For newer deployments, use the current **IBM QRadar STIG Implementation Guide**, which was last verified on **IBM QRadar 7.5 Update Pack 14 (UP14)**.
 
-## Important Customer Information:
-- Administrators will no longer be allowed to login as root, this is a STIG requirement. They will have to login with their newly created non-root user account.
-- Secondly, due to AIDE being initialized, every time an install, uninstall, system configuration change occurs, or a deployment action is taken, the aide baseline will have to be updated.
-- Third, modifications to the GRUB2 configuration make it so that each time the physical or virtual server is rebooted, the administrator must enter the GRUB2 root user password. If they do not enter this password the system will not start. If this is a physical deployment the administrator must have access to the datacenter, the rack where QRadar is installed, a monitor and keyboard they can plug into the QRadar servers.
-- Finally, due to STIG requiring all non-system accounts to have a minimum password age of 1 day and a maximum of 60. The stiguser will have to have the password changed every 60 days.
+## Document Status
+
+| Field | Value |
+|---|---|
+| Status | Legacy |
+| Original QRadar Version | IBM QRadar 7.5.0 Update 6 |
+| Original Publication Date | June 15, 2023 |
+| Original Update Date | July 10, 2023 |
+| Original Author | Christian L. Reyes, IBM Federal Sales Engineering |
+| Supported for New Deployments | No |
+| Purpose | Historical and educational reference |
+| Superseded By | IBM QRadar STIG Implementation Guide for newer releases |
+
+## Introduction
+
+This guide preserves the original process used to implement Security Technical Implementation Guide requirements on **IBM QRadar 7.5.0 Update 6**.
+
+The original procedures were provided by **Christian L. Reyes** of **IBM Federal Sales Engineering** and were republished with permission. The presentation has been modernized for GitHub, but the technical workflow remains tied to the QRadar version for which it was written.
+
+This guide covers:
+
+- Creating a non-root administrative account
+- Running the IBM QRadar STIG hardening script
+- Configuring AIDE
+- Disabling packet forwarding on managed hosts
+- Forwarding audit logs
+- Applying BIOS and UEFI GRUB2 protections
+- Configuring password aging for non-system accounts
+
+> **Warning**
+>
+> This is not a current implementation guide. Do not use these procedures as a substitute for current IBM documentation, current DISA STIG content, or the newer guide in this repository.
+
+## Original Author and Attribution
+
+**Christian L. Reyes**  
+IBM Federal Sales Engineering
+
+- Original publication: June 15, 2023
+- Original update: July 10, 2023
+- Republished with permission
+
+## Advisory
+
+The original guide referenced IBM's QRadar guidance for highly secure environments but documented field experience in which portions of that guidance caused severe system disruption, including extended downtime and factory reinstallation.
+
+GRUB2 modification was identified as a particularly high-risk part of the implementation. Recovery could require:
+
+- Physical access to a hardware appliance
+- A bootable QRadar installation USB
+- Access to the rack, monitor, and keyboard
+- Hypervisor console access for virtual appliances
+- A mounted QRadar installation ISO
+- Separate disaster-recovery procedures
+
+> **Critical Warning**
+>
+> Incorrect GRUB2 configuration can prevent QRadar from booting. Do not perform the BIOS or UEFI procedures in this legacy guide on a newer QRadar release.
+
+## Operational Impact
+
+Before implementing the procedures documented in the original guide, administrators were expected to understand the following operational changes.
+
+### Root Login
+
+Direct root login is disabled by the STIG hardening process. Administrators must sign in with a non-root administrative account and elevate privileges with `sudo`.
+
+### AIDE Maintenance
+
+After AIDE is initialized, its baseline must be updated after changes such as:
+
+- Software installation
+- Software removal
+- System configuration changes
+- QRadar deployment actions
+
+Failure to update the baseline can result in expected platform changes being reported as file-integrity violations.
+
+### GRUB2 Authentication
+
+The original implementation required authentication during every system boot. For physical deployments, this could require an administrator to be physically present at the appliance.
+
+### Password Aging
+
+Non-system accounts were required to use:
+
+- A minimum password age of 1 day
+- A maximum password age of 60 days
+
+The administrative STIG account therefore required periodic password changes.
 
 ## Prerequisites
-<p>Physical Deployment: ensure you have the latest QRadar ISO loaded onto a USB flash drive and the image was created with Fedora Media Writer (https://fedoraproject.org/workstation/download/). This is critical as no other live media writer works properly, this is the only recommended media writer from IBM Support.</p>
-<p>Software Deployment: Ensure the QRadar 7.5.0 Update 4 ISO is loaded onto a datastore which the QRadar Console VM can access.</p>
-<p>Backup Critical Information: Ensure the customer has backups off-board from QRadar, either on an external NAS or SSD. If having to help them save information off QRadar and onto a NAS or external media, ensure to copy the contents of the following directories over:</p>
 
-- All config and data backups: /store/backup
-- All raw events information: /store/ariel/events
-- All raw flows information: /store/ariel/flows
+Complete the following preparation before beginning.
 
-Check size of these directories via `du -sh /store/ariel/flows`. Ensure that the size on the system is the same on the off-board media. 
+### Recovery Media
 
-## Creating Non-Root User
-- Open Putty or another terminal emulator
-- Enter DNS names or IP Address of QRadar Console, then click "open"
-- Login to QRadar Console as root user
-- Create `stiguser` or client username of choice
-  - `useradd -c 'Admin User' -d /home/stiguser -m -s /bin/bash stiguser`
-- Change new user password
-  - `passwd stiguser`
-- Verify no entries with the `NOPASSWD` statement are uncommented in the `/etc/sudoers` file
-  - `more /etc/sudoers | grep NOPASSWD`
-- After verifying no entries existed with the `NOPASSWD` statement uncommented, the next step is to add `STIGUSER` to the sudoers file
-  - Create `stiguser` file in `/etc/sudoers.d` directory
-  - `vi /etc/sudoers.d/stiguser`
-  - Type `i` (insert)
-  - `stiguser ALL=(ALL) ALL`
-  - Press ESC; the `--INSERT--` will disappear
-  - `:wq!`
-- Close Putty or terminal emulator
-- Open Putty to QRadar Console
-- Login as stiguser
-- Verify stiguser can elevate to root permissions
-  - `sudo su`
-- After verifying that stiguser can escalate to root permission, type `exit` to return to stiguser
-- Create SSH key pair for stiguser
-  - `ssh-keygen -b 4096 -t rsa`
-- Transfer ssh keys to managed host
-  - `ssh-copy-id stiguser@<ipaddress> -o StrictHostKeyChecking=no`
-- Test that the stiguser can login to the managed host without using a password
-  - `ssh stiguser@<ipaddress>`
-- After validating the console can login to the managed host without a password, type exit to return to the QRadar Console and proceed to the next section
+For a physical deployment:
 
-## Run Hardening Script
+1. Obtain the QRadar ISO appropriate for the original deployment.
+2. Write it to a USB flash drive using Fedora Media Writer.
+3. Confirm that the USB can boot on the target hardware.
 
-- Login to the QRadar Console via Putty or other terminal emulator as root user
-- Change directories to `/opt/qradar/util/stig/bin`
-  - `cd /opt/qradar/util/stig/bin`
-- Run STIG script
-  - `./stig_harden.sh -a`
-- Verify completion of script
-- Reboot the Console
-  - `reboot`
-- Verify root user can no longer log directly into the Console by attempting to login as root
-- Login to QRadar Console with `stiguser` account
-- SSH from the Console to the EPFP via stiguser
-  - `ssh stiguser@<ipaddress>`
-- Sudo to root
-- Change directories to `/opt/qradar/util/stig/bin`
-- Run STIG script
-- Verify STIG script completed successfully
-- Reboot the managed host, this will bring you back to the Console
-- Wait a couple minutes, then attempt to login via stiguser from the console to the managed host
-- Having run the hardening script on the QRadar Console and managed hosts, validating the ability to login from the Console to the managed host, you may proceed to the next section
+For a virtual deployment:
 
-## Editing Scripts
-- Prior to modifying `iptables_update.sl` script, create a copy of the file and place it within the `/home/stiguser` directory
-  - `cp /opt/qradar/bin/iptables_update.pl /home/stiguser`
-- After ensuring that a copy of the file is made, next you will edit the `iptables_update.pl` script via vi
-  - `vi /opt/qradar/bin/iptables_update.pl`
-- Once in edit mode, search for `INPUT`
-  - `/INPUT`
-- Press the enter key, you will be brought to the exact line which  needs to be modified
-- Press the `i` (insert) key, you will know you are in insert mode via the bottom banner saying `--INSERT--`
-- Change `INPUT ACCEPT [0:0]` to `INPUT DROP [0:0]`
-- Press the ESC key to exit editing mode, this will remove the `--INSERT--` banner
-- Save and exit from the `iptables_update.pl`
-  - `wq!`
-  - Enter
-- Run the `iptables_update.pl` script
-  - `/opt/qradar/bin/iptables_update.pl`
-- Next, the AIDE baseline will be created. Note, this will take some time to finish
-  - `aide --init`
-- You will know when the baseline is completed when the initialized statement is returned
-- To use the AIDE database, the `new` needs to be removed from the aide string, move the `aide.db.new.gz` to `aide.db.gz`
-  - `mv -f /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz`
-- Update aide database
-  - `aide --update`
-- Create a new baseline after updating it
-  - `mv -f /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz`
-- IMPORTANT NOTE: THE AIDE UPDATE AND CREATION OF NEW BASELINE MUST BE COMPLETED EACH AND EVERY TIME A NEW INSTALL, UNINSTALL, SYSTEM CONFIGURATION CHANGE OR A DEPLOY ACTION IS TAKEN
-- SSH from the Console to managed hosts. The next step is only to be complated on managed hosts
-- Once logged into the managed host, next will be to disable packet forwarding for IPv4
-  - `sysctl -w net.ipv4.ip_forward=0`
-- Disable packet forwarding for IPv6
-  - `sysctl -w net.ipv6.conf.all.forwarding=0`
-- Edit the `/etc/sysctl.conf` via vi
-  - `vi /eetc/sysctl.conf`
-- Scroll to the bottom of the file and type the `i` (insert) key, you will enter insert mode
-- Add the following lines to the bottom of the file
-  - `net.ipv4.ip_forward = 0`
-  - `net.ipv6.conf.all.forwarding = 0`
-- Press the ESC key to exit editing, this will remove the `--INSERT--` banner
-- Save and exit from editing the file
-  - `wq!`
-- Modify the syslog-ng.conf file to send all audit logs to the Event Processor or Processors
-  - `vi /etc/syslog-ng/syslog-ng.conf`
-- Search for local4.info, to ensure you modify the correct section
-  - `/local4.info`
-- You will be brought to the `local4.info` section
-- Modify the section with the following lines
-  - `destination remote_audit {udp("10.75.26.121" port (514)); };`
-  - `log { source(local); filter(local4_info); destination(remote_audit); };`
-- This completes the editing scripts section. Proceed to the following section
+1. Upload the appropriate QRadar ISO to a datastore accessible by the QRadar virtual machine.
+2. Confirm that the ISO can be mounted through the hypervisor.
+3. Confirm that console access is available without relying on SSH.
 
-## GRUB2 Configuration (BIOS)
-### IMPORTANT NOTICE: Ensure that you have the latest QRadar 7.5.0 ISO, if this is a physical deployment ensure you have a live bootable USB created with Fedora Media Writer. If this is a virtual deployment, ensure the ISO is in an accessible datastore. These will be needed if the configuration is not done exactly as listed below. Modifying the GRUB2 configuration has the potential of breaking the ability to log into the system entirely. If this occurs, you must use the "Disaster Recovery After GRUB2 Modification" how to guide.
+> **Legacy Note**
+>
+> The original guide referenced a QRadar 7.5.0 Update 4 ISO for recovery. That reference is preserved for historical accuracy and should not be treated as valid recovery guidance for newer releases.
 
-- Backup and save all relevant GRUB2 configuration files. Tar up and compress the grub2 configurations, prior to modification
-  - `tar -cvf /root/grub2backup.tar /etc/grub.d /etc/default/grub /boot/grub2`
-- Verify the tar file exists, prior to moving forward
-  - `ll /root/grub2backup.tar`
-- Create GRUB2 password for `stiguser` login, copy and paste the password to a text file
-  - `grub2-mkpasswd-pbkdf2`
-- After configuring the GRUB2 password, the next step is to modify the 10_linux file via vi
-  - `vi /etc/grub.d/10_linux`
-- Search for `--unrestricted`
-  - `/unrestricted`
-- Type `i` for insert
-- Remove the `--unrestricted` and replace with `--users stiguser`. Setting the `--users` to stiguser
-- Press the ESC key to exit editing mode
-- Save and exit the file
-  - `wq!`
-- Next the `01_user` file will be modified via the following command
-  - `vi /etc/grub.d/01_users`
-- The following script will appear
-- ```
-  #!/bin/sh -e
-  cat << EOF
-  if [ -f \${prefix}/user.cfg ]; then
-    source \${prefix}/user.cfg
-    if [ -n "\${GRUB2_PASSWORD}" ]; then
-      set superusers="root"
-      export superusers
-      password_pbkdf2 root \${GRUB2_PASSWORD}
-    fi
-  fi
-  EOF
-  ```
-- Type `i` to enter editing mode
-- Modify the following areas of the script. This will change the superuser from root to stiguser
-  - `set superusers="stiguser"`
-  - `password_pbkdf2 stiguser \${GRUB2_PASSWORD}`
-- Press the ESC key to exit editing mode
-- Save and edit the file
-  - `wq!`
-- Next, manually create the `user.cfg` file within the `/boot/grub2` directory. This can be done via the following commands
-  - `vi user.cfg` (if you are already in the `/boot/grub2` directory)
-  - `vi /boot/grub2/user.cfg`
-- Copy and paste the grub2 password created in step 3 into the user.cfg
-- Press the ESC key to exit editing mode
-- Save and exit the file
-  - `wq!`
-- Recreate the grub configuration via the following command
-  - `grub2-mkconfig -o /boot/grub2/grub.cfg`
-- Copy the `user.cfg` which was created during the password creation to the `/recovery/grub2` partition
-  - `cp /boot/grub2/user.cfg /recover/grub2`
-- Verify root is set as superuser within `/boot/grub2/grub.cfg`
-  - `grep -iw "superusers" /boot/grub2/grub.cfg`
-- Modify the /recovery/grub2/user.cfg
-  - `vi /recovery/grub2/grub.cfg`
-- Search for "Normal System"
-  - `/"Normal System"`
-- Type `i` to insert and begin editing
-- Add `--user stiguser` after `menuentry "Normal System"`
-- Add `--user root` after `menuentry "Factory re-install`
-- Press ESC key to exit editing mode
-- Save and exit the file
-  - `wq!`
-- Recreate the recover grub2 config
-  - `grub2-mkconfig -o /recovery/grub2/grub.cfg`
-- Prior to rebooting the server, ensure you have physical access and go to the datacenter. You will not be able to access remotely, due to grub requiring a password now to boot normally. Reboot the server to test that GRUB halts the boot up of the system and requires the root password
-  - `reboot`
-- The bootup should be halted and will prompt for username and password. The username will be root and the password is the one set earlier
-- If the GRUB2 configuration was done properly, after entering the password, the system should boot up normally
-- Verify the system is working and allows logins to the webpage by logging into the webpage
+### Backup Critical Data
 
-## GRUB2 Configuration (UEFI)
-### IMPORTANT NOTICE: Ensure that you have the latest QRadar 7.5.0 ISO, if this is a physical deployment ensure you have a live bootable USB created with Fedora Media Writer. If this is a virtual deployment, ensure the ISO is in an accessible datastore. These will be needed if the configuration is not done exactly as listed below. Modifying the GRUB2 configuration has the potential of breaking the ability to log into the system entirely. If this occurs, you must use the "Disaster Recovery after GRUB2 Modification" how to guide.
+Store backups outside QRadar, such as on a NAS or external storage device.
 
-- Backup and save all relevant GRUB2 configuration files. Tar up and compress the grub2 configurations prior to modification
-  - `tar -cvf /root/grub2backup.tar /etc/grub.d /etc/default/grub /boot/efi/EFI/redhat`
-- Verify the tar file exists prior to moving forward
-  - `ll /root/grub2backup.tar`
-- Create the grub password for stiguser, copy the contents of the password to a text file
-  - `grub2-mkpasswd-pbkdf2`
-- Modify the `/etc/grub.d/10_linux` file
-  - `vi /etc/grub.d/10_linux`
-- Locate the `CLASS` line
-- Press the `i` key to enter edit mode
-- Modify the end of the line from `--unrestricted` to `--users stiguser`
-- Press the ESC key to exit editing mode
-- Save and exit the file
-  - `wq!`
-- Next, the 01_user file will be modified via the following command
-  - `vi /etc/grub.d/01_users`
-- The following script will appear
-- ```
-  #!/bin/sh -e
-  cat << EOF
-  if [ -f \${prefix}/user.cfg ]; then
-    source \${prefix}/user.cfg
-    if [ -n "\${GRUB2_PASSWORD}" ]; then
-      set superusers="root"
-      export superusers
-      password_pbkdf2 root \${GRUB2_PASSWORD}
-    fi
-  fi
-  EOF
-  ```
-- Type `i` to enter editing mode
-- Modify the following areas of the script. This will change the superuser from root to stiguser
-  - `set superusers="stiguser"`
-  - `password_pbkdf2 stiguser \${GRUB2_PASSWORD}`
-- Press the ESC key to exit editing mode
-- Save and exit the file
-  - `wq!`
-- Next, manually create the `user.cfg` file within the `/boot/efi/EFI/redhat` directory. This can be done via the following commands
-  - `vi user.cfg` (if you are already in the `/boot/efi/EFI/redhat` directory)
-  - `vi /boot/efi/EFI/redhat/user.cfg`
-- Copy and paste the grub2 password created earlier into the `user.cfg`
-- Press the ESC key to exit editing mode
-- Save and exit the file
-  - `wq!`
-- Recreate the grub configuration via the following command
-  - `grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg`
-- Verify that the GRUB2 password is within the user.cfg
-  - `grep -iw grub2_password /boot/efi/EFI/redhat/user.cfg`
-- Next verify that the "superusers" within the grub.cfg is set to `stiguser` or the user that was created at the beginning of the STIG process
-  - `grep -iw "superusers" /boot/efi/EFI/redhat/grub.cfg`
-- After verifying the grub password is correct and the grub.cfg is configured for stiguser, reboot the appliance
-- Once the system has rebooted you will need to get access to the console. If this is a physical server, go to the datacenter and access the server. If this is a virtual appliance access the VM via the hypervisor and attach to the console
-- Once at the console you will enter the username, stiguser, and password
-- After entering the username and password, the system will boot up normally
+Preserve the following directories where applicable:
 
-## Modify Password Age for Non-system Accounts
-### IMPORTANT NOTE: A lot of individuals get confused as to what is a system account and what is not. The easiest way to figure this out is via looking at the /etc/logins.def. RHEL 7 has the following values, presented below whith define a user and a system account via UID and GID
+```text
+/store/backup
+/store/ariel/events
+/store/ariel/flows
 ```
-# Min/max values for automatic uid selection in useradd
-#
+
+Check the size of each directory before and after copying it.
+
+```bash
+du -sh /store/backup
+du -sh /store/ariel/events
+du -sh /store/ariel/flows
+```
+
+Confirm that the copied data size matches the source before proceeding.
+
+### Access Requirements
+
+Confirm that you have:
+
+- Root access before hardening
+- Hypervisor or physical console access
+- Current backups
+- Recovery media
+- A maintenance window
+- A tested rollback or disaster-recovery procedure
+- Network access between the Console and managed hosts
+
+## Create a Non-Root Administrative User
+
+The STIG hardening process prevents direct root login. Create a non-root account before running the hardening script.
+
+The examples in this guide use `stiguser`. Replace it with an organization-approved username where appropriate.
+
+### Create the Account
+
+Sign in to the QRadar Console as `root`, then create the account.
+
+```bash
+useradd -c 'Admin User' -d /home/stiguser -m -s /bin/bash stiguser
+passwd stiguser
+```
+
+### Review Existing Sudo Configuration
+
+Check for uncommented `NOPASSWD` entries.
+
+```bash
+more /etc/sudoers | grep NOPASSWD
+```
+
+Review any returned entries before continuing.
+
+### Grant Sudo Access
+
+Create a dedicated sudoers file.
+
+```bash
+vi /etc/sudoers.d/stiguser
+```
+
+Add:
+
+```text
+stiguser ALL=(ALL) ALL
+```
+
+Save the file and validate its syntax.
+
+```bash
+visudo -cf /etc/sudoers.d/stiguser
+```
+
+> **Note**
+>
+> The original guide used `vi` keystrokes such as `i`, `Esc`, and `:wq!`. Those editor-specific instructions have been removed for readability, but the required configuration remains unchanged.
+
+### Verify Privilege Elevation
+
+Close the root session and sign in as `stiguser`.
+
+Verify that the account can elevate to root.
+
+```bash
+sudo su -
+```
+
+Return to the non-root shell after verification.
+
+```bash
+exit
+```
+
+### Create and Distribute an SSH Key
+
+Generate a 4096-bit RSA key pair.
+
+```bash
+ssh-keygen -b 4096 -t rsa
+```
+
+Copy the public key to each managed host.
+
+```bash
+ssh-copy-id stiguser@<managed-host-ip> -o StrictHostKeyChecking=no
+```
+
+Test the connection.
+
+```bash
+ssh stiguser@<managed-host-ip>
+```
+
+After validating access, return to the Console.
+
+```bash
+exit
+```
+
+## Run the STIG Hardening Script
+
+Run the IBM-provided hardening script on the Console first, followed by each managed host.
+
+> **Warning**
+>
+> This procedure reflects the behavior of QRadar 7.5.0 Update 6. Do not assume that the script location, options, or resulting configuration are valid for newer versions.
+
+### Harden the Console
+
+Sign in to the Console and elevate to root.
+
+```bash
+sudo su -
+```
+
+Change to the STIG utility directory.
+
+```bash
+cd /opt/qradar/util/stig/bin
+```
+
+Run the hardening script.
+
+```bash
+./stig_harden.sh -a
+```
+
+Verify that the script completes successfully, then reboot.
+
+```bash
+reboot
+```
+
+After the system returns:
+
+1. Confirm that direct root login is denied.
+2. Sign in as `stiguser`.
+3. Confirm that `sudo` elevation still works.
+4. Confirm that the QRadar user interface is available.
+
+### Harden Managed Hosts
+
+From the Console, connect to the managed host.
+
+```bash
+ssh stiguser@<managed-host-ip>
+```
+
+Elevate to root.
+
+```bash
+sudo su -
+```
+
+Run the hardening script.
+
+```bash
+cd /opt/qradar/util/stig/bin
+./stig_harden.sh -a
+```
+
+Verify successful completion, then reboot the managed host.
+
+```bash
+reboot
+```
+
+Wait for the host to return, then reconnect from the Console.
+
+```bash
+ssh stiguser@<managed-host-ip>
+```
+
+Repeat this process for each managed host.
+
+## Post-Hardening Configuration
+
+The original guide required additional configuration after the hardening script completed.
+
+### Modify the QRadar Firewall Update Script
+
+Back up the original script.
+
+```bash
+cp /opt/qradar/bin/iptables_update.pl /home/stiguser/
+```
+
+Edit the active file.
+
+```bash
+vi /opt/qradar/bin/iptables_update.pl
+```
+
+Locate:
+
+```text
+INPUT ACCEPT [0:0]
+```
+
+Change it to:
+
+```text
+INPUT DROP [0:0]
+```
+
+Run the script.
+
+```bash
+/opt/qradar/bin/iptables_update.pl
+```
+
+> **Legacy Warning**
+>
+> Modifying IBM-owned scripts can be overwritten by updates and may place the system into an unsupported state. This step is preserved because it was part of the original Update 6 procedure, not because it is recommended for newer releases.
+
+### Initialize AIDE
+
+Create the initial AIDE database.
+
+```bash
+aide --init
+```
+
+Move the newly generated database into the active location.
+
+```bash
+mv -f /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+```
+
+Update the database.
+
+```bash
+aide --update
+```
+
+Replace the active database with the updated baseline.
+
+```bash
+mv -f /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+```
+
+> **Important**
+>
+> Recreate the AIDE baseline after software installations, removals, QRadar configuration changes, and deployment actions.
+
+### Disable Packet Forwarding on Managed Hosts
+
+Perform this section only on managed hosts.
+
+Disable IPv4 forwarding immediately.
+
+```bash
+sysctl -w net.ipv4.ip_forward=0
+```
+
+Disable IPv6 forwarding immediately.
+
+```bash
+sysctl -w net.ipv6.conf.all.forwarding=0
+```
+
+Edit the persistent sysctl configuration.
+
+```bash
+vi /etc/sysctl.conf
+```
+
+Add:
+
+```text
+net.ipv4.ip_forward = 0
+net.ipv6.conf.all.forwarding = 0
+```
+
+Apply the settings.
+
+```bash
+sysctl -p
+```
+
+Verify them.
+
+```bash
+sysctl net.ipv4.ip_forward
+sysctl net.ipv6.conf.all.forwarding
+```
+
+Expected values:
+
+```text
+net.ipv4.ip_forward = 0
+net.ipv6.conf.all.forwarding = 0
+```
+
+> **Correction Preserved During Revamp**
+>
+> The original guide contained the path `/eetc/sysctl.conf`. The corrected path is `/etc/sysctl.conf`.
+
+### Forward Audit Logs to an Event Processor
+
+The original guide configured `syslog-ng` to forward audit-related messages to an Event Processor.
+
+Edit the configuration.
+
+```bash
+vi /etc/syslog-ng/syslog-ng.conf
+```
+
+Locate the `local4.info` area and add a remote destination.
+
+```text
+destination remote_audit { udp("<event-processor-ip>" port(514)); };
+log { source(local); filter(local4_info); destination(remote_audit); };
+```
+
+Restart `syslog-ng`.
+
+```bash
+systemctl restart syslog-ng
+```
+
+Verify the service.
+
+```bash
+systemctl status syslog-ng
+```
+
+> **Security Note**
+>
+> The original procedure used UDP port 514. UDP syslog does not provide transport encryption or delivery assurance. Current deployments should use the transport and certificate configuration supported by the applicable QRadar release and organizational policy.
+
+## Configure GRUB2 on BIOS Systems
+
+> **Critical Warning**
+>
+> This procedure was written for BIOS-based QRadar 7.5.0 Update 6 systems.
+>
+> Incorrect GRUB2 changes can prevent the appliance from booting. Ensure that recovery media and direct console access are available before beginning. Do not use these steps on newer releases without version-specific IBM guidance.
+
+### Back Up GRUB2
+
+Create a backup archive.
+
+```bash
+tar -cvf /root/grub2backup.tar /etc/grub.d /etc/default/grub /boot/grub2
+```
+
+Verify the archive.
+
+```bash
+ls -l /root/grub2backup.tar
+```
+
+### Create a GRUB2 Password
+
+Generate a PBKDF2 password hash.
+
+```bash
+grub2-mkpasswd-pbkdf2
+```
+
+Securely retain the generated hash for use in the following steps.
+
+### Restrict Boot Entries
+
+Edit the Linux menu-entry generator.
+
+```bash
+vi /etc/grub.d/10_linux
+```
+
+Locate `--unrestricted` and replace it with:
+
+```text
+--users stiguser
+```
+
+### Configure the GRUB2 Superuser
+
+Edit:
+
+```bash
+vi /etc/grub.d/01_users
+```
+
+The original file resembled:
+
+```sh
+#!/bin/sh -e
+cat << EOF
+if [ -f \${prefix}/user.cfg ]; then
+  source \${prefix}/user.cfg
+  if [ -n "\${GRUB2_PASSWORD}" ]; then
+    set superusers="root"
+    export superusers
+    password_pbkdf2 root \${GRUB2_PASSWORD}
+  fi
+fi
+EOF
+```
+
+Change the superuser and password owner to `stiguser`.
+
+```sh
+set superusers="stiguser"
+export superusers
+password_pbkdf2 stiguser \${GRUB2_PASSWORD}
+```
+
+### Create `user.cfg`
+
+Create the configuration file.
+
+```bash
+vi /boot/grub2/user.cfg
+```
+
+Add the generated password hash in the format expected by the original configuration.
+
+### Rebuild the GRUB2 Configuration
+
+```bash
+grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+
+Verify the configured superuser.
+
+```bash
+grep -iw "superusers" /boot/grub2/grub.cfg
+```
+
+### Copy the User Configuration to Recovery
+
+The original guide referenced the recovery partition.
+
+```bash
+cp /boot/grub2/user.cfg /recovery/grub2/
+```
+
+> **Correction Preserved During Revamp**
+>
+> The original command used `/recover/grub2`. The expected recovery path was `/recovery/grub2`.
+
+### Modify the Recovery GRUB2 Configuration
+
+Edit:
+
+```bash
+vi /recovery/grub2/grub.cfg
+```
+
+Locate the `Normal System` and `Factory re-install` menu entries.
+
+The original procedure instructed administrators to add user restrictions similar to:
+
+```text
+menuentry "Normal System" --users stiguser
+menuentry "Factory re-install" --users root
+```
+
+Rebuild the recovery configuration.
+
+```bash
+grub2-mkconfig -o /recovery/grub2/grub.cfg
+```
+
+### Test the BIOS Configuration
+
+Before rebooting:
+
+- Confirm that physical or hypervisor console access is available.
+- Confirm that recovery media is ready.
+- Confirm that the GRUB2 credentials are known.
+- Confirm that the maintenance window allows for recovery.
+
+Reboot.
+
+```bash
+reboot
+```
+
+At the console:
+
+1. Confirm that the boot process requests credentials.
+2. Enter the configured GRUB2 username and password.
+3. Confirm that the system boots normally.
+4. Confirm SSH access.
+5. Confirm access to the QRadar web interface.
+
+> **Historical Inconsistency**
+>
+> The original guide configured `stiguser` as the GRUB2 superuser but later stated that the boot prompt would use `root`. This inconsistency is preserved here as a warning rather than silently selecting one behavior. Administrators working with the original release would have needed to validate the generated GRUB2 configuration before rebooting.
+
+## Configure GRUB2 on UEFI Systems
+
+> **Critical Warning**
+>
+> This procedure was written for UEFI-based QRadar 7.5.0 Update 6 systems. Do not use it on newer releases without supported version-specific instructions.
+
+### Back Up the UEFI GRUB2 Configuration
+
+```bash
+tar -cvf /root/grub2backup.tar /etc/grub.d /etc/default/grub /boot/efi/EFI/redhat
+```
+
+Verify the archive.
+
+```bash
+ls -l /root/grub2backup.tar
+```
+
+### Create a GRUB2 Password
+
+```bash
+grub2-mkpasswd-pbkdf2
+```
+
+Securely retain the generated password hash.
+
+### Restrict Boot Entries
+
+Edit:
+
+```bash
+vi /etc/grub.d/10_linux
+```
+
+Locate the `CLASS` line and replace:
+
+```text
+--unrestricted
+```
+
+with:
+
+```text
+--users stiguser
+```
+
+### Configure the GRUB2 Superuser
+
+Edit:
+
+```bash
+vi /etc/grub.d/01_users
+```
+
+The original file resembled:
+
+```sh
+#!/bin/sh -e
+cat << EOF
+if [ -f \${prefix}/user.cfg ]; then
+  source \${prefix}/user.cfg
+  if [ -n "\${GRUB2_PASSWORD}" ]; then
+    set superusers="root"
+    export superusers
+    password_pbkdf2 root \${GRUB2_PASSWORD}
+  fi
+fi
+EOF
+```
+
+Change the relevant lines to:
+
+```sh
+set superusers="stiguser"
+export superusers
+password_pbkdf2 stiguser \${GRUB2_PASSWORD}
+```
+
+### Create the UEFI `user.cfg`
+
+```bash
+vi /boot/efi/EFI/redhat/user.cfg
+```
+
+Add the generated GRUB2 password hash.
+
+### Rebuild the UEFI GRUB2 Configuration
+
+```bash
+grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg
+```
+
+Verify the password entry.
+
+```bash
+grep -iw grub2_password /boot/efi/EFI/redhat/user.cfg
+```
+
+Verify the superuser.
+
+```bash
+grep -iw "superusers" /boot/efi/EFI/redhat/grub.cfg
+```
+
+### Test the UEFI Configuration
+
+Before rebooting, confirm direct console access and recovery readiness.
+
+```bash
+reboot
+```
+
+At the console:
+
+1. Enter the configured GRUB2 username.
+2. Enter the configured GRUB2 password.
+3. Confirm that the appliance boots.
+4. Confirm SSH access.
+5. Confirm access to the QRadar web interface.
+
+## Configure Password Aging for Non-System Accounts
+
+The original procedure used UID and GID ranges from the platform's `/etc/login.defs` to distinguish user accounts from system accounts.
+
+Example values from the original environment:
+
+```text
+# Min/max values for automatic UID selection in useradd
 UID_MIN                    1000
 UID_MAX                   60000
+
 # System accounts
 SYS_UID_MIN                 201
 SYS_UID_MAX                 999
 
-#
-# Min/max values for automatic gid selection in groupadd
-#
+# Min/max values for automatic GID selection in groupadd
 GID_MIN                    1000
 GID_MAX                   60000
+
 # System accounts
 SYS_GID_MIN                 201
 SYS_GID_MAX                 999
 ```
-Any account that has a UID value greated than 1000 and a GID value greater than 1000 is a user account and not system. To validate which users, you can view the /etc/passwd file.
 
-- After having done the prep work previously listed, enter the following command to verify user accounts which don't have a minimum password age of 1 day configured
-  - `awk -F: '$4 < 1 {print $1 "" $4}' /etc/shadow`
-- If any accounts were to be returned not meeting the minimum password age of 1 day, the command below is how you would fix that issue
-  - `chage -m 1 stiguser`
-- Verify that no user accounts return having a maximum password age of 60 days
-  - `awk -F: '$5 > 60 {print $1 "" $5}' /etc/shadow`
-- If a user account was returned, then you can use the following command to fix the account
-  - `chage -M 60 stiguser`
-- Finally, verify that no two users have a duplicate UID
-  - `pwck -rq`
-- The last step concludes the STIG QRadar guide. The system is now STIG compliant.
+Review the active values on the appliance.
+
+```bash
+grep -E '^(UID_MIN|UID_MAX|SYS_UID_MIN|SYS_UID_MAX|GID_MIN|GID_MAX|SYS_GID_MIN|SYS_GID_MAX)' /etc/login.defs
+```
+
+Review local accounts.
+
+```bash
+cat /etc/passwd
+```
+
+> **Note**
+>
+> UID and GID classification can vary by distribution, appliance version, and locally created service accounts. Do not assume that every account with a UID greater than or equal to `1000` is an interactive user without reviewing its purpose.
+
+### Identify Accounts with an Invalid Minimum Password Age
+
+The original guide provided:
+
+```bash
+awk -F: '$4 < 1 {print $1 "" $4}' /etc/shadow
+```
+
+A more readable equivalent is:
+
+```bash
+awk -F: '$4 < 1 {print $1, $4}' /etc/shadow
+```
+
+For each applicable non-system account, configure a minimum password age of one day.
+
+```bash
+chage -m 1 stiguser
+```
+
+### Identify Accounts with an Invalid Maximum Password Age
+
+The original guide provided:
+
+```bash
+awk -F: '$5 > 60 {print $1 "" $5}' /etc/shadow
+```
+
+A more readable equivalent is:
+
+```bash
+awk -F: '$5 > 60 {print $1, $5}' /etc/shadow
+```
+
+For each applicable non-system account, configure a maximum password age of 60 days.
+
+```bash
+chage -M 60 stiguser
+```
+
+### Check Account Database Consistency
+
+```bash
+pwck -rq
+```
+
+Review and resolve any reported duplicate UIDs or account database issues.
+
+### Verify the Administrative Account
+
+```bash
+chage -l stiguser
+```
+
+Confirm that the minimum and maximum password ages match the intended policy.
+
+## Verification
+
+Because this is a legacy guide, verification should focus on documenting what the original implementation expected rather than treating these checks as proof of compliance on a current release.
+
+### Administrative Access
+
+Confirm that:
+
+- Direct root SSH login is disabled.
+- `stiguser` can sign in.
+- `stiguser` can elevate with `sudo`.
+- The Console can connect to managed hosts using the administrative account.
+
+Example checks:
+
+```bash
+ssh stiguser@<managed-host-ip>
+sudo -l
+```
+
+### STIG Hardening Script
+
+Confirm that the script completed without reported errors on the Console and managed hosts.
+
+Review relevant logs where available.
+
+### AIDE
+
+Confirm that the database exists.
+
+```bash
+ls -l /var/lib/aide/aide.db.gz
+```
+
+Run an integrity check if appropriate for the environment.
+
+```bash
+aide --check
+```
+
+### Packet Forwarding
+
+On managed hosts, verify:
+
+```bash
+sysctl net.ipv4.ip_forward
+sysctl net.ipv6.conf.all.forwarding
+```
+
+Expected values:
+
+```text
+net.ipv4.ip_forward = 0
+net.ipv6.conf.all.forwarding = 0
+```
+
+### Audit Log Forwarding
+
+Confirm that `syslog-ng` is running.
+
+```bash
+systemctl status syslog-ng
+```
+
+Confirm that messages arrive at the configured Event Processor or external log receiver.
+
+### GRUB2
+
+Confirm that:
+
+- The expected user is configured in the generated GRUB2 configuration.
+- The password file exists.
+- The appliance boots only after the intended authentication workflow.
+- Recovery media remains available.
+
+BIOS example:
+
+```bash
+grep -iw "superusers" /boot/grub2/grub.cfg
+```
+
+UEFI example:
+
+```bash
+grep -iw "superusers" /boot/efi/EFI/redhat/grub.cfg
+```
+
+### Password Aging
+
+```bash
+chage -l stiguser
+pwck -rq
+```
+
+Confirm that the intended minimum and maximum ages are applied and that no account database errors remain.
+
+### QRadar Platform Health
+
+After all changes, verify:
+
+- QRadar user interface access
+- Console-to-managed-host communication
+- Event and flow ingestion
+- Deploy Changes functionality
+- Application availability
+- Backup completion
+- Authentication
+- System notifications
+- HA status, if applicable
+
+## Known Legacy Issues
+
+This guide contains procedures that should be treated cautiously even in the historical context for which they were written.
+
+### IBM-Owned Script Modification
+
+Editing `/opt/qradar/bin/iptables_update.pl` can be overwritten by updates and may not be supported.
+
+### Unencrypted Syslog
+
+The original procedure used UDP port 514, which does not provide encryption or reliable delivery.
+
+### GRUB2 Authentication at Every Boot
+
+The original design could require hands-on intervention after every reboot, creating operational and availability risks.
+
+### GRUB2 Username Inconsistency
+
+The original BIOS instructions changed the superuser to `stiguser` but later referred to authenticating as `root`.
+
+### Recovery Path Typo
+
+The original guide referenced both `/recover/grub2` and `/recovery/grub2`. The revamped guide uses `/recovery/grub2`.
+
+### Sysctl Path Typo
+
+The original guide referenced `/eetc/sysctl.conf`. The revamped guide corrects this to `/etc/sysctl.conf`.
+
+### Compliance Statement
+
+The original guide concluded that the system was STIG compliant after the listed procedures. Completing a technical checklist alone does not establish compliance. Compliance also depends on:
+
+- The applicable STIG release
+- Findings and severities
+- Organizational implementation statements
+- Approved exceptions
+- Manual checks
+- Evidence
+- Continuous monitoring
+- Assessor or ISSO review
+
+## Additional Resources
+
+Use current sources when working with a supported QRadar deployment:
+
+- IBM QRadar documentation for highly secure environments
+- IBM QRadar STIG responsibilities and exceptions
+- Current DISA STIG content
+- Organization-specific security policy
+- The current IBM QRadar STIG Implementation Guide in this repository
+
+> **Final Reminder**
+>
+> This guide applies to the historical **IBM QRadar 7.5.0 Update 6** implementation described by the original author. It should not be used for newer QRadar versions.
