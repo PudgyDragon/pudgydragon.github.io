@@ -1,12 +1,12 @@
 ---
-title: "Cisa Kev Connector"
+title: "OpenCTI CISA KEV Integration"
 project: "OpenCTI"
 category: "Threat Intelligence"
-description: "A practical threat intelligence for OpenCTI."
+description: "Configure the CISA Known Exploited Vulnerabilities (KEV) connector for OpenCTI."
 source_url: "https://github.com/PudgyDragon/OpenCTI/blob/main/Connectors/CISA_KEV_connector.md"
 ---
 
-<h1>CISA KEV Connector for OpenCTI</h1>
+<h1>Introduction</h1>
 <p>Self explanatory. These are the settings I used for a CISA KEV connector that works with OpenCTI on a 
 network behind a proxy. And yes, I keep copy/pasting the basic instructions between connectors I've done. 
 You can find the offical documentation for it here:</p>
