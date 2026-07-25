@@ -1,85 +1,267 @@
 ---
-title: "Installation Guide"
+title: "Installing Security Analytics 8.2.6 on Dell Hardware"
 project: "Security Analytics"
 category: "Engineering Guide"
-description: "A practical engineering guide for Security Analytics."
+description: "Installing Broadcom Security Analytics 8.2.6 on Dell hardware using the DVD ISO installation media."
 source_url: "https://github.com/PudgyDragon/Security_Analytics/blob/main/Guides/Installation_Guide.md"
 ---
 
-# Security Analytics Installation Guide
-This is a guide for the install of SSA 8.2.6 on your own Dell hardware. Please note that it took a lot of trial and error with other methods
-that ended up not working for us. This is the only method that ended up working for us using a DVD.iso file type.
+## Introduction
 
-**A USB stick is REQUIRED for this method**
+This guide documents a successful method for installing **Broadcom Security Analytics (SSA) 8.2.6** on Dell server hardware using the official **DVD ISO** installation media.
 
-Using an external hard drive, or using WinSCP if the device you're going to install this on is still connected to the network, transfer
-the .iso file and the solera script file to the /home directory. Once the files are transferred to the home directory, you can remove the
-external hard drive. You can find the solera script file here at the bottom of the page:
+Several installation methods were evaluated during deployment, including approaches documented elsewhere online, but this was the only consistently successful process in our environment. The procedure below reflects the method ultimately used to complete multiple successful installations.
 
-- https://knowledge.broadcom.com/external/article/168296
-- **NOTE** - They removed the script, but it can be found in my repositories
+> **Important**
+>
+> This guide applies specifically to **Security Analytics 8.2.6** using the **DVD ISO** installation media. Installation procedures may differ for newer software versions.
 
-Ensure that syslinux, dosftools, and rsync are installed by running the following commands:
+> **Note**
+>
+> A USB flash drive is required for this installation method. The official DVD ISO cannot be written directly to a USB drive without first converting it using Broadcom's installation script.
+
+## Prerequisites
+
+Before beginning, ensure you have the following:
+
+- Broadcom Security Analytics 8.2.6 DVD ISO
+- USB flash drive
+- Supported Dell server
+- Root access to a Linux system
+- Network connectivity (optional but recommended)
+- External storage or SCP/SFTP access for transferring installation files
+
+You will also need Broadcom's USB creation script.
+
+Broadcom originally distributed the script through the following Knowledge Base article:
+
+https://knowledge.broadcom.com/external/article/168296
+
+> **Note**
+>
+> Broadcom has since removed the script from the article. A copy has been preserved within this repository for archival purposes.
+
+## Step 1 – Transfer the Installation Files
+
+Copy the following files to the target server:
+
+- Security Analytics DVD ISO
+- `solera-iso-to-usb.sh`
+
+Place both files in:
+
+```text
+/home
 ```
+
+After the transfer completes, disconnect any temporary storage devices.
+
+## Step 2 – Install Required Packages
+
+Install the packages required by the USB creation script.
+
+```bash
 yum install syslinux
 yum install dosfstools
 yum install rsync
 ```
-(There may be other packages that you need to yum install, you won't know until you attempt to run the rest of the commands)
 
-Navigate to the home directory and give the solera script execute permissions:
-```
+> **Field Note**
+>
+> Depending on the Linux distribution or package versions installed, additional dependencies may be required. If the script reports missing utilities, install the requested packages before continuing.
+
+## Step 3 – Prepare the USB Creation Script
+
+Navigate to the home directory.
+
+```bash
 cd /home
+```
+
+Make the script executable.
+
+```bash
 chmod +x solera-iso-to-usb.sh
 ```
-Run the following command to determine what drives are already on the server:
-```
+
+## Step 4 – Identify the USB Device
+
+Before inserting the USB drive, list the currently attached storage devices.
+
+```bash
 fdisk -l
 ```
-Unplug the device from the network (if your network doesn't allow USB), and plug in the USB stick. Run the same command again to
-determine what the USB drive is labeled as (i.e. /dev/sdc). If it shows that is is mounted, run the mount command to unmount it:
-```
-(Example): umount /dev/sdc1
-```
-While in the home directory, execute the script:
-```
-./solera-iso-to-usb.sh --force <name of ISO file> </dev/device_mapping>
-(Example): ./solera-iso-to-usb.sh --force atpsa-8.2.6-55530-x86_64-DVD.iso /dev/sdc
-```
-After the script has finished, you will need to change the server settings to boot from BIOS instead of UEFI. Restart the server, either by pressing the 
-power buttonor by using ctrl+alt+delete. When prompted, press F11 to enter BIOS configuration. Change the settings to boot from BIOS and save the settings.
-This will prompt a restart again.
 
-While the device is rebooting, press F11 again when prompted to enter BIOS configuration. You will select the USB drive to boot from. This will
-prompt the server to boot Solera, and it will run a few automatic updates before rebooting again and prompting to select Solera to boot from again.
-After this reboot, you will then be prompted to login to the server.
+Insert the USB flash drive and run the command again.
 
-The default server credentials are:
-
-- Username - admin
-- Password - Solera
-
-From here, you will need to configure network settings. The install guide says that you will need to configure eth0, but this is wrong. You
-will need to configure bond0.
-
-Run the following commands:
+```bash
+fdisk -l
 ```
-sudo ifconfig bond0 <ip_address> netmask <subnet_mask>
-sudo route add default gw <default_gateway_ip>
-```
-Once you have these settings, from a workstation navigate to the IP address you have given your SSA server and login using the admin credentials
-above. After accepting the EULA page, you will be on the initial configuration page. If for some reason you are unable to view the initial
-configuration page, append this to the end of the URL:
 
+Identify the newly detected device.
+
+Example:
+
+```text
+/dev/sdc
+```
+
+If the operating system automatically mounts the USB drive, unmount it before continuing.
+
+Example:
+
+```bash
+umount /dev/sdc1
+```
+
+> **Warning**
+>
+> Verify the correct device before proceeding. Selecting the wrong disk will overwrite its contents.
+
+## Step 5 – Create the Installation USB
+
+Run the Broadcom conversion script.
+
+```bash
+./solera-iso-to-usb.sh --force <ISO_FILE> <USB_DEVICE>
+```
+
+Example:
+
+```bash
+./solera-iso-to-usb.sh --force atpsa-8.2.6-55530-x86_64-DVD.iso /dev/sdc
+```
+
+Allow the script to complete before removing the USB drive.
+
+## Step 6 – Configure the BIOS
+
+After creating the installation media:
+
+1. Reboot the server.
+2. Enter the BIOS setup.
+3. Change the boot mode from **UEFI** to **Legacy BIOS**.
+4. Save the configuration.
+
+The server will reboot.
+
+## Step 7 – Boot from the Installation USB
+
+During startup:
+
+1. Open the boot menu.
+2. Select the USB drive.
+3. Allow the installer to start.
+
+The installer performs several automated tasks before rebooting.
+
+After the reboot, boot from the Security Analytics installation again if prompted.
+
+When installation completes, the login prompt will appear.
+
+## Step 8 – Initial Login
+
+Default credentials:
+
+| Username | Password |
+|-----------|----------|
+| `admin` | `Solera` |
+
+> **Warning**
+>
+> Change the default administrator password as soon as the installation is complete.
+
+## Step 9 – Configure Temporary Network Settings
+
+During our deployments, the official installation guide instructed administrators to configure **eth0**.
+
+On our Dell hardware, this was **not** the correct management interface.
+
+Instead, the management interface was assigned to:
+
+```text
+bond0
+```
+
+Assign a temporary IP address.
+
+```bash
+sudo ifconfig bond0 <IP_ADDRESS> netmask <SUBNET_MASK>
+```
+
+Configure the default gateway.
+
+```bash
+sudo route add default gw <DEFAULT_GATEWAY>
+```
+
+> **Field Note**
+>
+> Depending on your hardware configuration, the management interface may not be `eth0`. Verify the correct interface assignment before configuring networking.
+
+## Step 10 – Complete the Initial Configuration Wizard
+
+From a workstation, browse to:
+
+```text
+https://<IP_ADDRESS>
+```
+
+Log in using the default administrator credentials.
+
+After accepting the EULA, the Initial Configuration Wizard should appear automatically.
+
+If it does not, browse directly to:
+
+```text
 /settings/initial_config
+```
 
-This is the page where you will be able to configure the network settings for your SSA box, and you will need to re-enter the configurations
-you initially gave it into this page as well. The settings included on this page are:
+Complete the remaining configuration, including:
 
-Root credentials
-Admin credentials
-Proxy settings
-DNS settings
-DHCP
-IP address
-Default Gateway
+- Root password
+- Administrator password
+- Management IP address
+- Default gateway
+- DNS servers
+- Proxy configuration (if required)
+- DHCP settings (if applicable)
+
+After saving the configuration, the appliance is ready for licensing, storage configuration, and capture interface setup.
+
+## Verification
+
+After completing the installation:
+
+- Verify you can access the web interface.
+- Confirm the management interface has the correct IP address.
+- Verify DNS resolution.
+- Confirm the default gateway is reachable.
+- Ensure the Initial Configuration Wizard has completed successfully.
+- Verify you can log in using the newly configured administrator credentials.
+
+## Troubleshooting
+
+If the installation USB does not boot:
+
+- Verify the BIOS is configured for **Legacy BIOS** mode.
+- Confirm the USB was created using Broadcom's conversion script.
+- Ensure the correct USB device was selected during USB creation.
+
+If the Initial Configuration Wizard does not appear:
+
+Browse directly to:
+
+```text
+/settings/initial_config
+```
+
+If the appliance is unreachable after assigning an IP address:
+
+- Verify the management interface is actually `bond0`.
+- Confirm the network cable is connected to the correct interface.
+- Verify the gateway and subnet mask are correct.
+
+> **Field Note**
+>
+> The most significant issue encountered during deployment was the management interface assignment. The installation documentation referenced `eth0`, while the actual management interface on our Dell hardware was `bond0`. Identifying the correct interface early in the installation process avoided unnecessary troubleshooting and allowed the deployment to proceed normally.
