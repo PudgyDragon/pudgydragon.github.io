@@ -1,12 +1,12 @@
 ---
-title: "Aws"
+title: "MISP AWS Deployment"
 project: "MISP"
 category: "Threat Intelligence"
-description: "A practical threat intelligence for MISP."
+description: "Deploy the Malware Information Sharing Platform (MISP) on Amazon Web Services."
 source_url: "https://github.com/PudgyDragon/MISP/blob/main/AWS.md"
 ---
 
-# MISP on AWS
+# Introduction
 I wrote a quick guide down when I first did this, but forgot to post it until 6 months later. I'm just going to jot down what I had noted. I hadn't worked with AWS much before, and did this on a whim within a couple days of playing around with it.
 
 At the time that I wrote this, the installation of MISP I used was for Debian 12, which can be found at:
