@@ -6,52 +6,98 @@ description: "Deploy a Corelight Software Sensor on Proxmox Virtual Environment.
 source_url: "https://github.com/PudgyDragon/Corelight/blob/main/VMwareSensor/Sensor.md"
 ---
 
-# Introduction
+## Introduction
 
-Corelight Software Sensors provide network visibility by inspecting traffic and generating high-fidelity security telemetry for threat detection, network monitoring, and forensic analysis. This guide documents the process of deploying a Corelight Software Sensor on Proxmox Virtual Environment (VE), including the migration of a seeded virtual appliance from VMware ESXi.
+Corelight Software Sensors provide network visibility by inspecting network traffic and generating high-fidelity telemetry for threat detection, network monitoring, and forensic analysis.
 
-Because Corelight's initial deployment process relies on VMware ESXi to perform the appliance seeding process, a Software Sensor cannot currently be deployed directly from the original OVA files on Proxmox VE. This guide assumes the sensor has been successfully seeded using VMware vSphere and focuses on migrating the virtual appliance to Proxmox for long-term operation.
+This guide documents the process of deploying a Corelight Software Sensor on Proxmox Virtual Environment (PVE) by migrating a previously seeded virtual appliance from VMware vSphere. It assumes the initial appliance deployment and activation have already been completed using the official Corelight deployment process.
 
 ## Advisory
-At the time of writing, I have not been able to perform the initial Corelight Software Sensor deployment directly on Proxmox VE. The supplied OVA requires an initial seeding process that is performed through VMware ESXi using either a Customer ID or an offline seeding key. Additionally, the appliance uses encrypted disks and root access is restricted to Corelight Support, preventing modifications to the initial deployment process.
 
-Once the appliance has been seeded and the initial setup is complete, it can be shut down, exported from ESXi as an OVF template, and migrated to Proxmox VE without issue.
+At the time of writing, the initial deployment and activation of a Corelight Software Sensor requires VMware vSphere to complete the appliance seeding process. During deployment, the appliance must be activated using either a Customer ID or an offline seeding key.
 
-## ESXi
-Complete the initial deployment using VMware vSphere by following the Corelight deployment guide. During the first boot, you will be prompted to activate the appliance using either your Customer ID or an offline seeding key. After the deployment wizard completes and the appliance has rebooted successfully, shut down the virtual machine and export it as an OVF template.
+Once the appliance has been successfully seeded, it can be exported from VMware and imported into Proxmox VE for long-term operation.
 
-The exported template will contain the OVF and VMDK files required for migration. Transfer these files to your Proxmox VE host using SCP before continuing with the remainder of this guide.
+> **Note:** This guide begins after the initial VMware deployment has been completed.
 
-## Proxmox Import
-Once your ova files (ovf, vmdk) are on your Proxmox host, you will need to create a new VM with them running the following commands:
-```
+## Prepare the VMware Appliance
+
+Deploy and activate the Corelight Software Sensor using the official Corelight deployment guide.
+
+After the deployment wizard completes successfully:
+
+- Shut down the virtual machine.
+- Export the virtual machine as an OVF template.
+- Transfer the exported OVF and VMDK files to the Proxmox host using SCP or another secure file transfer method.
+
+## Import the Virtual Machine
+
+Import the OVF template into Proxmox.
+
+Example:
+
+```bash
 qm importovf 105 ./corelightsensor.ovf corerhel --format qcow2
 ```
-In our case, 105 is the number we used for our VM and corerhel is the the LVM we'll be using for our sensor.
 
-Once the import is finished, and both disks have been imported, you may have to go to `Hardware` on your Proxmox GUI and detach both disks from the VM and re-attach them as SCSI.
+Where:
 
-## Proxmox Settings
-For the VM to work properly, your settings should look similar to these:
+- `105` is the Proxmox virtual machine ID.
+- `corerhel` is the target storage pool.
+
+After the import completes, verify that both virtual disks have been imported successfully.
+
+If necessary, detach and reattach the imported disks through the Proxmox web interface as **SCSI** devices.
+
+## Configure the Virtual Machine
+
 ### Hardware
+
+The following virtual hardware was used during testing:
+
 - Memory: 64 GiB
-- Processors: 4 (1 sockets, 4 cores)
+- Processors: 4 vCPUs (1 Socket / 4 Cores)
 - BIOS: OVMF (UEFI)
 - SCSI Controller: VirtIO SCSI
-- Hard Disk (scsi0): corerhel:vm-105-disk-0,size=64G
-- Hard Disk (scsi1): corerhel:vm-105-disk-1,size=500G
-- Network Device (net0): virtio=<mac>,bridge=vmbr0
-- Network Device (net1): virtio=<mac>,bridge=vmbr1
+- Primary Disk (`scsi0`): 64 GB
+- Secondary Disk (`scsi1`): 500 GB
+- Network Adapter (`net0`): VirtIO attached to `vmbr0`
+- Network Adapter (`net1`): VirtIO attached to `vmbr1`
 
-### Options
-- Boot Order: scsi0
+### Boot Order
 
-### Firewall
-You will also need to make sure your local firewall will allow traffic to the ports needed. You can play with these settings on the GUI based on your organization needs, but for the initial setup you will need to run the following commands to make sure a couple necessary ports are available:
-```
+Configure the boot order so that:
+
+- `scsi0` is the primary boot device.
+
+## Configure Firewall Access
+
+If the Proxmox host or guest operating system is protected by a firewall, allow the required management ports before starting the appliance.
+
+Example:
+
+```bash
 firewall-cmd --zone=public --permanent --add-service=https
+
 firewall-cmd --zone=public --permanent --add-service=http
-firewall-cmd --zone=public --permanent --add-port 1443/tcp
-firewall-cmd --zone=public --permanent --add-port 1443/udp
+
+firewall-cmd --zone=public --permanent --add-port=1443/tcp
+
+firewall-cmd --zone=public --permanent --add-port=1443/udp
+
+firewall-cmd --reload
 ```
-Allowing `1443` will allow the sensor to be able to talk to your Fleet Manager. If you're not using Fleet Manager, allowing `https/http` will allow you to be able to access your VM from your browser outside of the VM.
+
+Port `1443` is used for communication between the Software Sensor and Corelight Fleet Manager.
+
+If Fleet Manager is not being used, allowing HTTP and HTTPS access enables management through the sensor's web interface.
+
+## Verification
+
+After the migration is complete:
+
+- Verify the virtual machine starts successfully.
+- Confirm both virtual disks are attached.
+- Verify both network adapters are operational.
+- Confirm the sensor is accessible through the web interface.
+- If Fleet Manager is deployed, verify the sensor successfully connects and reports its status.
