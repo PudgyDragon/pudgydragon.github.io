@@ -1,12 +1,12 @@
 ---
-title: "Installation"
+title: "OpenCTI Installation Guide"
 project: "OpenCTI"
 category: "Threat Intelligence"
-description: "A practical threat intelligence for OpenCTI."
+description: "Install and configure OpenCTI for threat intelligence management."
 source_url: "https://github.com/PudgyDragon/OpenCTI/blob/main/Guides/installation.md"
 ---
 
-<h1>OpenCTI Installation Guide</h1>
+<h1>Introduction</h1>
 <p>As the title suggests, this is a guide for installing OpenCTI. The underlying OS for this install will be RHEL 9. 
 I will cover a basic partition setup for this. Your organization may have a different setup. This guide 
 also assumes that you are behind a corporate proxy. It took some trial and error to get it working, 
