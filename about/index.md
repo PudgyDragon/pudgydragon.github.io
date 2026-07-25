@@ -1,14 +1,17 @@
 ---
 layout: page
 title: About PudgyDragon
-description: A practical knowledge base for cybersecurity engineers, threat intelligence practitioners, and blue-team defenders.
+description: Practical cybersecurity engineering guides, implementation notes, troubleshooting, and lessons learned.
 ---
-PudgyDragon collects implementation guides, troubleshooting notes, hardening procedures, and lessons learned while deploying and supporting security platforms. The goal is simple: make the next engineer's work easier, safer, and more repeatable.
 
-## Two dragons, two missions
+Hi, I'm **PudgyDragon**.
 
-**PudgyDragon** focuses on defensive engineering, threat intelligence, implementation, and blue-team operations. **TheNullDragon** is the separate offensive-security identity for vulnerability research and red teaming.
+I enjoy building, deploying, troubleshooting, and documenting cybersecurity technologies. This site is where I share the things I wish I had known before starting a deployment—the commands that save hours, the mistakes worth avoiding, and the lessons learned from implementing security platforms in real environments.
+
+Most of what you'll find here comes from hands-on experience with enterprise security tools, system administration, threat intelligence integrations, and defensive engineering. My goal is simple: create practical guides that are easy to follow and useful enough to save the next engineer time and frustration.
+
+Whether you're deploying a SIEM, integrating threat intelligence, hardening a Linux server, or trying to solve an obscure issue at 2 a.m., I hope something here helps.
 
 ## The mascot
 
-The PudgyDragon is a veteran blue dragon in worn armor. His rounded belly has finally cracked the front plate, a consequence of years of maintenance windows and peach energy drinks. He is capable, battle-tested, approachable, and always ready to document the fix.
+The PudgyDragon is a veteran blue dragon in well-worn armor. His rounded belly has finally cracked the front plate—a consequence of too many late-night maintenance windows and one too many peach energy drinks. Despite the dents and scratches, he's dependable, approachable, and always willing to document the solution so the next engineer has an easier day.
