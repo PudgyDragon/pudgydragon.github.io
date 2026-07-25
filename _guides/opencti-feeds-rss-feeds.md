@@ -6,138 +6,88 @@ description: "Reference RSS feeds that have been verified to work with OpenCTI."
 source_url: "https://github.com/PudgyDragon/OpenCTI/blob/main/Feeds/RSS_feeds.md"
 ---
 
-<h1>Introduction</h1>
-<p>RSS feeds provide a simple method for importing cybersecurity news and threat intelligence reports into OpenCTI without requiring a dedicated connector. By configuring RSS ingestion, OpenCTI can periodically retrieve articles from trusted security sources and convert them into reports for further analysis, enrichment, and correlation with existing intelligence.</p>
-<p>This guide maintains a curated list of RSS feeds that have been verified to function correctly with OpenCTI. While RSS feeds can change or be discontinued over time, the sources listed below were tested and confirmed to be operational as of March 6, 2026.</p>
+## Introduction
 
-<h2>Verified RSS Feeds</h2>
-<p>The following RSS feeds have been successfully tested with OpenCTI and can be imported using the built-in RSS Feed ingester.</p>
-<table>
-  <tr>
-    <th colspan="100">Verified RSS Feeds</th>
-  </tr>
-  <tr>
-    <th>Source</th>
-    <th>URL</th>
-  </tr>
-  <tr>
-    <td>TheHackerNews</td>
-    <td>https://feeds.feedburner.com/TheHackersNews?format=xml</td>
-  </tr>
-  <tr>
-    <td>Bleeping computer</td>
-    <td>http://www.bleepingcomputer.com/feed/</td>
-  </tr>
-  <tr>
-    <td>TheRegister | Cybercrime</td>
-    <td>https://www.theregister.com/security/cyber_crime/headlines.atom</td>
-  </tr>
-  <tr>
-    <td>SecurityWeek</td>
-    <td>https://www.securityweek.com/feed/</td>
-  </tr>
-  <tr>
-    <td>Palo Alto Networks Blog</td>
-    <td>https://www.paloaltonetworks.com/blog/feed/</td>
-  </tr>
-  <tr>
-    <td>Cisco Newsroom | Security</td>
-    <td>https://newsroom.cisco.com/c/services/i/servlets/newsroom/rssfeed.json?feed=security</td>
-  </tr>
-  <tr>
-    <td>Cisco Talos Blog</td>
-    <td>https://blog.talosintelligence.com/rss/</td>
-  </tr>
-  <tr>
-    <td>Mandiant</td>
-    <td>https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v</td>
-  </tr>
-  <tr>
-    <td>DFIR</td>
-    <td>https://thedfirreport.com/feed/</td>
-  </tr>
-  <tr>
-    <td>CISA</td>
-    <td>https://www.cisa.gov/cybersecurity-advisories/cybersecurity-advisories.xml</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender XDR</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftThreatProtectionBlog</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender for Cloud</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderCloudBlog</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender ATP</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderATPBlog</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender External Attack Surface</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=DefenderExternalAttackSurfaceMgmtBlog</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender Vuln Management</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Vulnerability-Management</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender Threat Intel</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=DefenderThreatIntelligence</td>
-  </tr>
-  <tr>
-    <td>Microsoft Azure Network Security</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=AzureNetworkSecurityBlog</td>
-  </tr>
-  <tr>
-    <td>Malwarebytes</td>
-    <td>https://www.malwarebytes.com/blog/feed/index.xml</td>
-  </tr>
-  <tr>
-    <td>SANS Internet Storm Center</td>
-    <td>https://isc.sans.edu/rssfeed_full.xml</td>
-  </tr>
-  <tr>
-    <td>Hackread</td>
-    <td>https://feeds.feedburner.com/hackread</td>
-  </tr>
-  <tr>
-    <td>Hexacorn</td>
-    <td>https://www.hexacorn.com/blog/feed/</td>
-  </tr>
-  <tr>
-    <td>TheRegister | Patches</td>
-    <td>https://www.theregister.com/security/patches/headlines.atom</td>
-  </tr>
-  <tr>
-    <td>TheRegister | Research</td>
-    <td>https://www.theregister.com/security/research/headlines.atom</td>
-  </tr>
-  <tr>
-    <td>Krebs on Security</td>
-    <td>https://krebsonsecurity.com/feed/</td>
-  </tr>
-  <tr>
-    <td>Security Affairs</td>
-    <td>https://securityaffairs.co/wordpress/feed</td>
-  </tr>
-  <tr>
-    <td>Microsoft Security Baselines Blog</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Microsoft-Security-Baselines</td>
-  </tr>
-  <tr>
-    <td>Core Infrastructure and Security Blog</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=CoreInfrastructureandSecurityBlog</td>
-  </tr>
-  <tr>
-    <td>Microsoft Security Experts Blog</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftSecurityExperts</td>
-  </tr>
-  <tr>
-    <td>Microsoft Sentinel Blog</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftSentinelBlog</td>
-  </tr>
-  <tr>
-    <td>Microsoft Defender for Office 365 Blog</td>
-    <td>https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderforOffice365Blog</td>
-  </tr>
-</table>
+RSS feeds provide a simple method for importing cybersecurity news and threat intelligence into OpenCTI without requiring a dedicated connector. By configuring RSS ingestion, OpenCTI can periodically retrieve articles from trusted security sources and convert them into reports for further analysis, enrichment, and correlation with existing intelligence.
+
+This guide maintains a curated list of RSS and Atom feeds that have been verified to function correctly with OpenCTI. Because feed URLs and content may change over time, each feed includes the date it was most recently verified.
+
+## Using These Feeds
+
+The feeds listed below have been successfully tested with the built-in OpenCTI RSS connector.
+
+> **Note:** OpenCTI supports both RSS and Atom feeds. Although some sources provide Atom feeds instead of traditional RSS feeds, both formats are supported.
+
+As feed publishers may modify or discontinue their feeds without notice, periodically verify that each feed remains available if ingestion stops unexpectedly.
+
+## Suggested Starter Feeds
+
+If you're new to RSS ingestion, the following feeds provide a good balance of vulnerability information, threat intelligence, malware research, and industry news.
+
+- CISA Cybersecurity Advisories
+- The Hacker News
+- SecurityWeek
+- Cisco Talos
+- The DFIR Report
+- SANS Internet Storm Center
+
+## Verified RSS Feeds
+
+### General Cybersecurity News
+
+| Source | RSS Feed | Last Verified |
+|---------|----------|:-------------:|
+| The Hacker News | https://feeds.feedburner.com/TheHackersNews?format=xml | 2026-03-06 |
+| BleepingComputer | http://www.bleepingcomputer.com/feed/ | 2026-03-06 |
+| SecurityWeek | https://www.securityweek.com/feed/ | 2026-03-06 |
+| HackRead | https://feeds.feedburner.com/hackread | 2026-03-06 |
+| Krebs on Security | https://krebsonsecurity.com/feed/ | 2026-03-06 |
+| Security Affairs | https://securityaffairs.co/wordpress/feed | 2026-03-06 |
+
+### Threat Intelligence
+
+| Source | RSS Feed | Last Verified |
+|---------|----------|:-------------:|
+| Cisco Talos | https://blog.talosintelligence.com/rss/ | 2026-03-06 |
+| Mandiant | https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v | 2026-03-06 |
+
+### Government Advisories
+
+| Source | RSS Feed | Last Verified |
+|---------|----------|:-------------:|
+| CISA Cybersecurity Advisories | https://www.cisa.gov/cybersecurity-advisories/cybersecurity-advisories.xml | 2026-03-06 |
+
+### DFIR & Research
+
+| Source | RSS Feed | Last Verified |
+|---------|----------|:-------------:|
+| The DFIR Report | https://thedfirreport.com/feed/ | 2026-03-06 |
+| Hexacorn | https://www.hexacorn.com/blog/feed/ | 2026-03-06 |
+| SANS Internet Storm Center | https://isc.sans.edu/rssfeed_full.xml | 2026-03-06 |
+| The Register \| Cybercrime | https://www.theregister.com/security/cyber_crime/headlines.atom | 2026-03-06 |
+| The Register \| Patches | https://www.theregister.com/security/patches/headlines.atom | 2026-03-06 |
+| The Register \| Research | https://www.theregister.com/security/research/headlines.atom | 2026-03-06 |
+
+### Vendor Security Blogs
+
+| Source | RSS Feed | Last Verified |
+|---------|----------|:-------------:|
+| Palo Alto Networks Blog | https://www.paloaltonetworks.com/blog/feed/ | 2026-03-06 |
+| Malwarebytes | https://www.malwarebytes.com/blog/feed/index.xml | 2026-03-06 |
+
+### Microsoft Security
+
+| Source | RSS Feed | Last Verified |
+|---------|----------|:-------------:|
+| Microsoft Defender XDR | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftThreatProtectionBlog | 2026-03-06 |
+| Microsoft Defender for Cloud | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderCloudBlog | 2026-03-06 |
+| Microsoft Defender for Endpoint | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderATPBlog | 2026-03-06 |
+| Microsoft Defender External Attack Surface Management | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=DefenderExternalAttackSurfaceMgmtBlog | 2026-03-06 |
+| Microsoft Defender Vulnerability Management | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Vulnerability-Management | 2026-03-06 |
+| Microsoft Defender Threat Intelligence | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=DefenderThreatIntelligence | 2026-03-06 |
+| Microsoft Azure Network Security | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=AzureNetworkSecurityBlog | 2026-03-06 |
+| Microsoft Security Baselines | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Microsoft-Security-Baselines | 2026-03-06 |
+| Core Infrastructure and Security | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=CoreInfrastructureandSecurityBlog | 2026-03-06 |
+| Microsoft Security Experts | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftSecurityExperts | 2026-03-06 |
+| Microsoft Sentinel | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftSentinelBlog | 2026-03-06 |
+| Microsoft Defender for Office 365 | https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=MicrosoftDefenderforOffice365Blog | 2026-03-06 |
