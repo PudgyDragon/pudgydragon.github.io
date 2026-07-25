@@ -1,14 +1,17 @@
 ---
-title: "Rss Feeds"
+title: "OpenCTI RSS Feed Reference"
 project: "OpenCTI"
 category: "Threat Intelligence"
-description: "A practical threat intelligence for OpenCTI."
+description: "Reference RSS feeds that have been verified to work with OpenCTI."
 source_url: "https://github.com/PudgyDragon/OpenCTI/blob/main/Feeds/RSS_feeds.md"
 ---
 
-<h1>RSS Feeds</h1>
-<p>Here's a list of RSS feeds that I have verified will work with OpenCTI as of 3/6/2026. If you stumble 
-upon this several months or years from that date and they no longer work... sorry? I guess.</p>
+<h1>Introduction</h1>
+<p>RSS feeds provide a simple method for importing cybersecurity news and threat intelligence reports into OpenCTI without requiring a dedicated connector. By configuring RSS ingestion, OpenCTI can periodically retrieve articles from trusted security sources and convert them into reports for further analysis, enrichment, and correlation with existing intelligence.</p>
+<p>This guide maintains a curated list of RSS feeds that have been verified to function correctly with OpenCTI. While RSS feeds can change or be discontinued over time, the sources listed below were tested and confirmed to be operational as of March 6, 2026.</p>
+
+<h2>Verified RSS Feeds</h2>
+<p>The following RSS feeds have been successfully tested with OpenCTI and can be imported using the built-in RSS Feed ingester.</p>
 <table>
   <tr>
     <th colspan="100">Verified RSS Feeds</th>
