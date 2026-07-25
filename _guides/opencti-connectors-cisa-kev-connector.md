@@ -8,58 +8,17 @@ source_url: "https://github.com/PudgyDragon/OpenCTI/blob/main/Connectors/CISA_KE
 
 ## Introduction
 
-The CISA Known Exploited Vulnerabilities connector imports vulnerability data from the CISA KEV Catalog into OpenCTI.
+This guide documents the configuration used for a CISA Known Exploited Vulnerabilities connector in an OpenCTI deployment operating behind an HTTP/HTTPS proxy.
 
-This guide documents a connector configuration for an OpenCTI deployment operating behind an HTTP/HTTPS proxy.
+Official connector documentation can be found here:
 
-## Prerequisites
+- https://github.com/OpenCTI-Platform/connectors/tree/master/external-import/cisa-known-exploited-vulnerabilities
 
-Before configuring the connector, ensure the following are available:
+## Configure the Connector
 
-- A functioning OpenCTI deployment managed with Docker Compose
-- A dedicated OpenCTI connector account
-- The API token associated with the connector account
-- A unique UUID for the connector
-- The OpenCTI platform version currently deployed
-- Proxy connection details, if required by the environment
+Before configuring the connector, create a dedicated connector account in the OpenCTI web interface and record its user token.
 
-> **Important:** The connector image version should match the deployed OpenCTI platform version. Using an incompatible connector version may prevent the connector from starting or registering successfully.
-
-## Create the Connector Account
-
-In the OpenCTI web interface, create a dedicated account for the CISA KEV connector.
-
-Configure the account as a connector or service account, then record its API token. This token will be assigned to `OPENCTI_TOKEN` in the Docker Compose configuration.
-
-> **Important:** Treat the connector token as a secret. Do not commit production tokens to a public repository.
-
-## Configure the Connector ID
-
-Generate a unique UUID for the connector and add it to the OpenCTI `.env` file.
-
-Edit the file:
-
-```bash
-vim /opt/OpenCTI/docker/.env
-```
-
-Add:
-
-```bash
-CONNECTOR_KEV_ID=<connector-uuid>
-```
-
-Example:
-
-```bash
-CONNECTOR_KEV_ID=12345678-1234-1234-1234-123456789abc
-```
-
-Each OpenCTI connector should use a unique UUID.
-
-## Configure the CISA KEV Connector
-
-Edit the OpenCTI Docker Compose file:
+Edit the Docker Compose configuration:
 
 ```bash
 vim /opt/OpenCTI/docker/docker-compose.yml
@@ -69,10 +28,10 @@ Add the following service beneath the existing `services:` section:
 
 ```yaml
 connector-cisa-known-exploited-vulnerabilities:
-  image: opencti/connector-cisa-known-exploited-vulnerabilities:<opencti-version>
+  image: opencti/connector-cisa-known-exploited-vulnerabilities:your-version
   environment:
-    - OPENCTI_URL=https://opencti.example.com
-    - OPENCTI_TOKEN=${CISA_KEV_OPENCTI_TOKEN}
+    - OPENCTI_URL=https://opencti-fqdn
+    - OPENCTI_TOKEN=CISA_User_Token
     - CONNECTOR_ID=${CONNECTOR_KEV_ID}
     - CONNECTOR_NAME=CISA KEV
     - CONNECTOR_SCOPE=cisa
@@ -83,41 +42,30 @@ connector-cisa-known-exploited-vulnerabilities:
     - CISA_CREATE_INFRASTRUCTURES=true
     - CISA_TLP=TLP:CLEAR
 
-    - HTTP_PROXY=http://proxy.example.com:8080
-    - HTTPS_PROXY=http://proxy.example.com:8080
-    - NO_PROXY=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,opencti.example.com
+    - HTTP_PROXY=http://proxy:port
+    - HTTPS_PROXY=http://proxy:port
+    - NO_PROXY=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,your-fqdn,your-ipv4
 
-    - http_proxy=http://proxy.example.com:8080
-    - https_proxy=http://proxy.example.com:8080
-    - no_proxy=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,opencti.example.com
+    - http_proxy=http://proxy:port
+    - https_proxy=http://proxy:port
+    - no_proxy=localhost,127.0.0.0/8,172.0.0.0/8,opencti,rabbitmq,redis,elasticsearch,minio,your-fqdn,your-ipv4
 
   restart: always
-
-  depends_on:
-    - opencti
 ```
 
-Update the following values for the environment:
+> **Note:** Update `OPENCTI_URL` with your OpenCTI URL and `OPENCTI_TOKEN` with the token for the connector account you created.
 
-- `<opencti-version>`
-- `OPENCTI_URL`
-- `CISA_KEV_OPENCTI_TOKEN`
-- Proxy hostname and port
-- OpenCTI hostname and internal addresses in `NO_PROXY`
+> **Important:** This connector may require the image version to match the version of OpenCTI currently deployed. Replace `your-version` with the OpenCTI version used by your environment.
 
-For example, if the OpenCTI platform is running version `6.7.10`, use:
+For example:
 
 ```yaml
 image: opencti/connector-cisa-known-exploited-vulnerabilities:6.7.10
 ```
 
-> **Note:** Both uppercase and lowercase proxy variables are included because different applications and supporting libraries may reference different forms.
+## Configure the Connector ID
 
-## Store the Connector Token
-
-Add the connector account token to the OpenCTI `.env` file rather than storing it directly in `docker-compose.yml`.
-
-Edit:
+If you did not create the connector ID during the OpenCTI installation, generate a UUID and add it to the `.env` file.
 
 ```bash
 vim /opt/OpenCTI/docker/.env
@@ -125,41 +73,13 @@ vim /opt/OpenCTI/docker/.env
 
 Add:
 
-```bash
-CISA_KEV_OPENCTI_TOKEN=<opencti-connector-token>
+```text
+CONNECTOR_KEV_ID=YOUR_GUID
 ```
-
-Restrict access to the file as appropriate for the environment:
-
-```bash
-chmod 600 /opt/OpenCTI/docker/.env
-```
-
-## Validate the Configuration
-
-Navigate to the OpenCTI Docker directory:
-
-```bash
-cd /opt/OpenCTI/docker
-```
-
-Validate the Docker Compose configuration:
-
-```bash
-docker compose config
-```
-
-Resolve any YAML syntax errors or missing environment variables before starting the connector.
 
 ## Deploy the Connector
 
-Start the CISA KEV connector:
-
-```bash
-docker compose up -d connector-cisa-known-exploited-vulnerabilities
-```
-
-If a complete stack restart is required:
+After saving the configuration, restart the Docker Compose stack:
 
 ```bash
 docker compose down
@@ -167,53 +87,11 @@ docker compose down
 docker compose up -d
 ```
 
-Starting only the connector is generally less disruptive than restarting the entire OpenCTI deployment.
-
 ## Verification
 
-Confirm the connector container is running:
+Log in to the OpenCTI web interface and verify that:
 
-```bash
-docker compose ps connector-cisa-known-exploited-vulnerabilities
-```
-
-Review the connector logs:
-
-```bash
-docker compose logs --follow connector-cisa-known-exploited-vulnerabilities
-```
-
-In the OpenCTI web interface:
-
-- Verify the CISA KEV connector appears as active.
-- Confirm the connector reports a recent heartbeat.
-- Verify KEV data is being imported.
-- Review newly created vulnerabilities and related entities.
-- Confirm no proxy, authentication, or version compatibility errors appear in the logs.
-
-## Troubleshooting
-
-If the connector does not start:
-
-- Confirm the connector image version matches the OpenCTI platform version.
-- Run `docker compose config` to identify YAML or environment-variable errors.
-- Review the connector logs for dependency or compatibility errors.
-
-If the connector cannot register with OpenCTI:
-
-- Verify `CONNECTOR_KEV_ID` contains a valid UUID.
-- Confirm the connector account token is correct.
-- Verify the connector account remains enabled.
-- Confirm `OPENCTI_URL` is reachable from the connector container.
-
-If the connector cannot retrieve the CISA catalog:
-
-- Verify the proxy hostname and port.
-- Confirm the proxy permits access to the CISA catalog URL.
-- Verify both uppercase and lowercase proxy variables are configured.
-- Confirm internal services are included in `NO_PROXY`.
-
-## Additional Resources
-
-- [OpenCTI CISA Known Exploited Vulnerabilities Connector](https://github.com/OpenCTI-Platform/connectors/tree/master/external-import/cisa-known-exploited-vulnerabilities)
-- [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
+- The CISA KEV connector appears under **Data > Ingestion > Connectors**.
+- The connector reports a healthy status.
+- CISA KEV data is being imported successfully.
+- Known exploited vulnerabilities appear in OpenCTI.
