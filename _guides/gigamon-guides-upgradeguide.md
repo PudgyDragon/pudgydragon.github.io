@@ -1,12 +1,12 @@
 ---
-title: "Upgradeguide"
+title: "Gigamon Upgrade Guide"
 project: "Gigamon"
 category: "Engineering Guide"
-description: "A practical engineering guide for Gigamon."
+description: "Upgrade Gigamon Fabric Manager and GigaVUE appliances to a newer software release."
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/Guides/UpgradeGuide.md"
 ---
 
-<h1>Gigamon Upgrade Guide</h1>
+<h1>Introduction</h1>
 <p>Quick little guide to help you get around having to run the fetch commands for the image files. Guide assumes that you have downloaded the images files 
 on your workstation and have them readily available to use.</p>
 <h3>NOTE: WinSCP or similar must be installed on your workstation.</h3>
