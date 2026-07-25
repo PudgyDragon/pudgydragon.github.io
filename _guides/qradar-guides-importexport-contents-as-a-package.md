@@ -1,76 +1,171 @@
 ---
-title: "Importexport  Contents As A Package"
+title: "Export and Import QRadar Content Packages"
 project: "QRadar"
 category: "Engineering Guide"
-description: "A practical engineering guide for QRadar."
-source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/ImportExport%20_Contents_as_a_Package"
+description: "Export and import custom QRadar content, including reports, DSMs, rules, and reference data, using the Content Management Tool."
+source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/ImportExport_Contents_as_a_Package.md"
 ---
 
-Modified guide for exporting custom content, including DSM and Reports. 
+## Introduction
 
-Simplified versions of these methods can be found at:
-Export: https://www.ibm.com/docs/en/qsip/7.5?topic=editor-exporting-contents-as-package
-Import: https://www.ibm.com/docs/en/qsip/7.5?topic=content-importing-by-using-management-script
+The QRadar Content Management Tool provides a method for exporting and importing custom content as reusable packages. This is useful when migrating content between deployments, backing up customizations, or transferring content between development, testing, and production environments.
 
-Login to the console through SSH and run the following command to start the Content Management Tool:
+This guide demonstrates how to:
+
+- Export custom content as a package
+- Import previously exported packages
+- Search for individual content objects before exporting
+- Export either specific objects or entire content types
+
+## References
+
+IBM provides documentation for the basic export and import procedures.
+
+- Exporting Content as a Package
+  - https://www.ibm.com/docs/en/qsip/7.5?topic=editor-exporting-contents-as-package
+- Importing Content Using the Content Management Tool
+  - https://www.ibm.com/docs/en/qsip/7.5?topic=content-importing-by-using-management-script
+
+This guide expands on those procedures by demonstrating how to export individual objects, including reports, DSMs, and other custom content.
+
+## Launch the Content Management Tool
+
+Connect to the QRadar Console using SSH.
+
+Launch the Content Management Tool.
+
+```bash
 /opt/qradar/bin/contentManagement.pl
+```
 
-You will get a list of Content Types you can choose from, similar to these:
+The tool displays the available content types and their associated identifiers.
 
-Custom Content Type----------------String------------------ID
-Dashboard--------------------------dashboard---------------x
-Reports----------------------------report------------------x
-Saved Searches---------------------search------------------x
-FGroup-----------------------------fgroup------------------x
-FGroup Type------------------------fgrouptype--------------x
-Custom Rules-----------------------customrule--------------x
-Custom Properties------------------customproperty----------x
-Log Source-------------------------sensordevice------------x
-Log Source Type--------------------sensordevicetype--------x
-Log Source Category----------------sensordevicecategory----x
-Log Source Extensions--------------deviceextension---------x
-Custom QidMap Entries--------------qidmap------------------x
-ReferenceData Collection-----------referencedata-----------x
-Offense Mapper Type----------------offensetype-------------x
-Historical Correlation Profile-----historicalsearch--------x
-Custom Functions-------------------custom_function---------x
-Custom Actions---------------------custom_action-----------x
-Applications-----------------------installed_application---x
+Example output:
 
-From here, determine what content type you want to export. If you are looking for a specific report within the Reports
-Content Type, you can search for it using a similar command, where 10 is the ID:
+| Content Type | Content String |
+|---------------|----------------|
+| Dashboard | dashboard |
+| Reports | report |
+| Saved Searches | search |
+| Custom Rules | customrule |
+| Custom Properties | customproperty |
+| Log Sources | sensordevice |
+| Log Source Types | sensordevicetype |
+| Log Source Categories | sensordevicecategory |
+| DSM Extensions | deviceextension |
+| Reference Data Collections | referencedata |
+| Historical Correlation Profiles | historicalsearch |
+| Custom Functions | custom_function |
+| Custom Actions | custom_action |
+| Applications | installed_application |
 
-/opt/qradar/bin/contentManagement.pl -a search -c 10 -r "(.*?)"
+## Search for Content
 
-The above command lists every report within the Reports Content Type. In order to export a specific report, you will need
-to provide the repots ID (which can be found in your search results) in the next step.
+If you only need to export specific objects, search the appropriate content type first.
 
-Create a .txt file on the console using:
-vi <filename>.txt
-(Example: vi reportexport.txt)
+For example, to list every report:
 
-Press the insert key to be able to edit the file and, depending on the type of content you want, use the following format
-with your desired content string:
-sensordevicetype, 24,26,95
+```bash
+/opt/qradar/bin/contentManagement.pl \
+-a search \
+-c 10 \
+-r "(.*?)"
+```
 
-In this example, we want any content from sensordevicetype with the IDs of 24, 26, and 95. If you want to have every
-sensordevicetype and not just specific ones, you can use the format:
-sensordevicetype, all
+> **Note:** The numeric content type identifier (`-c`) corresponds to the content type displayed by the Content Management Tool.
 
-Press esc, :wq, enter to save the file.
+The search results include the object IDs required when creating an export package.
 
-You will then run the following command to export the contents into the file you just created:
-/opt/qradar/bin/contentManagement.pl -a export -c package -f <file>
-(Example: /opt/qradar/bin/contentManagement.pl -a export -c package -f reportexport.txt)
+## Create an Export Definition
 
-This will export the desired contents and place them in a zip folder in the same location as your original text file.
-From here, you can use WinSCP to transfer the file from the console to whatever location on your local host. Please
-remember to remove any files that were created from the console when you are done using:
+Create a text file that defines the content to export.
 
-rm <file>
-(Example: rm reportexport.txt)
+```bash
+vi reportexport.txt
+```
 
-When you want to import them, place them on the desired asset through whatever means you use (WinSCP in this instance).
-cd to the location where your export file is at, and run the following command:
-/opt/qradar/bin/contentManagement.pl --action import -f fgroup-ContentExport-20120418163707.tar.gz
-replacing the .tar.gz file with the name of your own
+The export definition uses the following format.
+
+Export specific objects:
+
+```text
+sensordevicetype,24,26,95
+```
+
+Export all objects for a content type:
+
+```text
+sensordevicetype,all
+```
+
+The first value identifies the content type.
+
+The remaining values specify either:
+
+- Individual object IDs
+- `all` to export every object of that content type
+
+Save the file when complete.
+
+## Export the Package
+
+Export the package using the definition file.
+
+```bash
+/opt/qradar/bin/contentManagement.pl \
+-a export \
+-c package \
+-f reportexport.txt
+```
+
+The export creates a compressed package in the current directory.
+
+Example:
+
+```text
+reportexport-ContentExport-20260724101500.tar.gz
+```
+
+## Transfer the Package
+
+Transfer the package to another system using your preferred file transfer method.
+
+Common options include:
+
+- WinSCP
+- SCP
+- SFTP
+
+After verifying the export, remove any temporary files if they are no longer needed.
+
+```bash
+rm reportexport.txt
+```
+
+## Import a Package
+
+Copy the exported package to the destination QRadar Console.
+
+Import the package.
+
+```bash
+/opt/qradar/bin/contentManagement.pl \
+--action import \
+-f reportexport-ContentExport-20260724101500.tar.gz
+```
+
+Replace the filename with the package being imported.
+
+## Verification
+
+After importing the package:
+
+- Verify the Content Management Tool completes without errors.
+- Confirm the imported objects appear in the QRadar user interface.
+- Validate any dependencies, such as DSMs, custom properties, or reference data.
+- If importing rules or reports, verify they function as expected.
+
+## Additional Resources
+
+- IBM QRadar Content Management Documentation
+- IBM QRadar Administration Guide
