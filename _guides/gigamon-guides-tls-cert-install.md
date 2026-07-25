@@ -6,168 +6,231 @@ description: "Install and configure TLS certificates for Gigamon Fabric Manager 
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/Guides/TLS_Cert_Install.md"
 ---
 
-<h1>Introduction</h1>
-<p>This is a guide for installing TLS certificates on both the Gigamon Fabric Manager (FM) and Nodes. The online guide provided by Gigamon wasn't all encompassing. There are other guides online 
-that you can reference as well. My guide is a concatenation of guides that ended up working the way it needed to.</p>
+## Introduction
 
-<h2>Gigamon Fabric Manager</h2>
-<p>The first guide is for the Gigamon FM</p>
+Transport Layer Security (TLS) certificates secure communication between Gigamon Fabric Manager (FM), managed nodes, and administrative clients. Replacing the default certificates with certificates issued by an internal or public Certificate Authority (CA) helps establish trusted communications and eliminates browser security warnings.
 
-<h3>Pre-Requisites</h3>
-<h4>Backups</h4>
-<p>Login to the CLI of your FM and sudo to root. You will want to make backups of the current certificates on the box in case you make an oopsie</p>
-<pre><code>
-  cd /etc/pki/tls/certs/
-  cp localhost.crt localhost.crt.bak
-  cd /etc/pki/tls/private
-  cp localhost.key localhost.key.bak
-  
-</code></pre>
+This guide documents the process of installing TLS certificates on both Gigamon Fabric Manager and managed Gigamon nodes.
 
-<h4>Certificate Chain</h4>
-<p>Using Notepad++ or your preferred text editor, create a .crt file with all of the certificates in your cert chain in the following order</p>
-<ul>
-  <li>Server (Top)</li>
-  <li>Intermediate CA (Middle)</li>
-  <li>Root CA (Bottom)</li>
-</ul>
-<p>Make sure to kep all pieces of the certs, including the "Begin Cert" and "End Cert". You can name this file whatever you want because it will be changed once it's on the box, just make 
-sure it's a .crt extension. Once you have this created, SCP it and the .key file onto your FM and place them in the respective directories</p>
-<pre><code>
-  mv FM.crt /etc/pki/tls/certs/
-  mv FM.key /etc/pki/tls/private
-  
-</code></pre>
+## Advisory
 
-<h4>Edit SSL Conf</h4>
-<p>Lastly for pre-requisites, edit the following file and save it</p>
-<pre><code>
-  vi /etc/httpd/conf.d/ssl.conf
-      # Below the SSLCertificateFile that references localhost.crt, add
-      SSLCertificateChainFile /etc/pki/tls/certs/localhost.crt
-  
-</code></pre>
+Before replacing any certificates:
 
-<h3>Installation</h3>
-<p>Once you have the pre-requisites done, you can move on the this section.</p>
+- Back up the existing certificates and private keys.
+- Verify the complete certificate chain is available.
+- Schedule a maintenance window, as some services or appliances may require a restart.
 
-<h4>Replace Old Certs</h4>
-<p>With your backups created, you can now replace the old cert and key with your new one and give them the right permissions. The permissions much match what I have below.</p>
-<p>IMPORTANT: The cert and key MUST be named localhost.crt and localhost.key, respectively.</p>
-<pre><code>
-  # Certificate
-      cd /etc/pki/tls/certs/
-      mv FM.crt localhost.crt
-      chmod 644 localhost.crt
-  # Key
-      cd /etc/pki/tls/private
-      mv FM.key localhost.key
-      chmod 600 localhost.key
-  
-</code></pre>
+## Install Certificates on Gigamon Fabric Manager
 
-<h4>Concatenate Files</h4>
-<p>With the permissions set, concatenate the cert and key into a pem file to allow the load balancer functionality, and for the cert to work</p>
-<pre><code>
-  cat /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key > /etc/pki/tls/certs/localhost.pem
-  
-</code></pre>
-<p>When I did this, I noticed that the Beginning of the key was on the same line as the End of the certificate. You can simp[ly edit the file, do a return/enter between the two, and save it.</p>
+### Back Up Existing Certificates
 
+Log in to the Fabric Manager CLI and obtain root access.
 
-<h4>Restart Services</h4>
-<p>There are two services you need to restart, and an extra service you will want to verify is working aftewards</p>
-<pre><code>
-  # Restart
-      systemctl reload haproxy.service
-      systemctl restart httpd.service
-  # Status Check
-      systemctl status tomcat@cmz.service
-      systemctl status haproxy.service
-      systemctl status httpd.service
-</code></pre>
+Back up the existing certificate and private key.
 
-<p>That's all that should need to be done for the FM. The installation for the nodes can be found below.</p>
+```bash
+cd /etc/pki/tls/certs
+cp localhost.crt localhost.crt.bak
 
+cd /etc/pki/tls/private
+cp localhost.key localhost.key.bak
+```
 
-<h2>Gigamon Nodes</h2>
-<p>The nodes will be a little different than the FM. Again, using multiple guides to create my own that worked. Whether or not you need to do everything I did is another story.</p>
-<p>IMPORTANT: If you get an SSL cipher error after applying the certificates, you may have a setting enabled that is causing it. I discovered that having Secure Crytography Enchanced enabled can cause communication issues. To make sure it's disabled, you can find it here on the GUI</p>
-<pre><code>
-  Inventory > Nodes > Select Node > Settings > Global Settings > Secure Crytography Enhanced
-  
-</code></pre>
-<p>Note: Messing with this setting will reboot the device.</p>
+### Build the Certificate Chain
 
-<h3>Pre-Requisites</h3>
-<h4>Root/Intermediate Certs</h4>
-<p>On the FM GUI, you will need to add the Root and CA certs to the device. In theory, adding the device on the FM will push it to the nodes. Make sure to add all Root and CA certs in your nodes chain.</p>
-<pre><code>
-  Settings Cog > System > Certificates > CA List > Add
-  
-</code></pre>
-<p>The next part is what I'm not sure is needed or not, but I did it anyway. On the FM, add the Root and Intermediate certs to the Security CA list on the FM GUI</p>
-<pre><code>
-  Inventory > Resources > Security > CA List > Add
-  
-</code></pre>
-<p>Add the custom certificate and key pairs for each node to the Custom SSL Certificate tab</p>
-<pre><code>
-  Inventory > Resources > Security > Custom SSL Certificate > Add
-  
-</code></pre>
-<p>Add the Root and Intermediate certs to the Trust Store</p>
-<pre><code>
-  Settings Cog > System > Certificates > Trust Store > Add
-  
-</code></pre>
-<p>Once you've added all of these, you can verify that the FM has pushed the Root and Intermediate CA to each device by logging into the CLI of your node and running the 
-following commands</p>
-<pre><code>
-  enable
-  config t
-  show crypto certificate ca-list
-  
-</code></pre>
-<p>This should give you a list of the root/intermediate certs on that device.</p>
+Create a certificate file containing the complete certificate chain in the following order:
 
-<h3>Crypto Commands</h3>
-<p>Once you have the pre-requisites done, you can move on to running the commands to install the new certs and keys</p>
-<p>With a text editor like Notepad++, open your certificate and key files to view the content. Keep in mind that you will be copy/pasting these into the command line.
-  Login to the node you're going to replace the TLS certificate on and install the new certficiate with the following commands</p>
-<pre><code>
-  # If you started a new session, run these commands
-      enable
-      config t
-  # Create the public-cert pem
-      crypto certificate name pudgy_cert public-cert pem "(enter after quote)
-      (copy/paste certificate details, including begin/end section)
-      (enter)
-      " (last thing will be a finishing quote, then press enter)
-  # Link private key to the pem certificate you just created
-      crypto certificate name pudgy_cert private-key pem "(enter after quote)
-      (copy/paste key details, including begin/end section)
-      (enter)
-      " (last thing will be a finishing quote, then press enter
-  
-</code></pre>
-<p>Once you have created the certificate and linked the key to it, you can make it the default certificate for the node to use</p>
-<pre><code>
-  crypto certificate default-cert name pudgy_cert
-  web https certificate name pudgy_cert
-  
-</code></pre>
+- Server Certificate
+- Intermediate CA
+- Root CA
 
-<h3>Verify</h3>
-<p>Go to your browser now and navigate to the nodes address. While you can't manage it from the browser, you can still reach it and see if the cert 
-has been applied correctly. You can also verify that the new cert is being used by default with the following command</p>
-<pre><code>
-  show crypto certificate default-cert public-pem
-</code></pre>
+Retain all certificate headers and footers:
 
+- `-----BEGIN CERTIFICATE-----`
+- `-----END CERTIFICATE-----`
 
-<h2>Finished</h2>
-<p>That should be all there is to it. Hopefully it helps.</p>
+Copy the certificate and private key to the Fabric Manager.
 
+```bash
+mv FM.crt /etc/pki/tls/certs/
 
+mv FM.key /etc/pki/tls/private/
+```
 
+### Configure Apache
+
+Edit:
+
+```bash
+vi /etc/httpd/conf.d/ssl.conf
+```
+
+Add the following beneath the existing `SSLCertificateFile` directive.
+
+```text
+SSLCertificateChainFile /etc/pki/tls/certs/localhost.crt
+```
+
+### Replace the Existing Certificate
+
+Replace the default certificate.
+
+```bash
+mv FM.crt /etc/pki/tls/certs/localhost.crt
+chmod 644 /etc/pki/tls/certs/localhost.crt
+```
+
+Replace the private key.
+
+```bash
+mv FM.key /etc/pki/tls/private/localhost.key
+chmod 600 /etc/pki/tls/private/localhost.key
+```
+
+> **Note:** Fabric Manager expects the certificate and key to be named `localhost.crt` and `localhost.key`.
+
+### Create the PEM File
+
+Combine the certificate and private key.
+
+```bash
+cat /etc/pki/tls/certs/localhost.crt \
+    /etc/pki/tls/private/localhost.key \
+    > /etc/pki/tls/certs/localhost.pem
+```
+
+> **Note:** Verify that the certificate and private key are separated by a newline within the PEM file.
+
+### Restart Services
+
+```bash
+systemctl reload haproxy
+
+systemctl restart httpd
+```
+
+Verify the services.
+
+```bash
+systemctl status tomcat@cmz
+
+systemctl status haproxy
+
+systemctl status httpd
+```
+
+## Install Certificates on Gigamon Nodes
+
+### Advisory
+
+If HTTPS communication fails after installing the certificates, verify that **Secure Cryptography Enhanced** is disabled.
+
+Navigate to:
+
+- **Inventory**
+- **Nodes**
+- Select the node
+- **Settings**
+- **Global Settings**
+
+Verify:
+
+- **Secure Cryptography Enhanced** is disabled.
+
+> **Note:** Changing this setting reboots the node.
+
+### Import Certificate Authorities
+
+Import the Root and Intermediate CA certificates.
+
+Navigate to:
+
+- **Settings**
+- **System**
+- **Certificates**
+- **CA List**
+- **Add**
+
+Import each certificate in the chain.
+
+### Populate the Trust Store
+
+Add the Root and Intermediate CA certificates.
+
+Navigate to:
+
+- **Settings**
+- **System**
+- **Certificates**
+- **Trust Store**
+- **Add**
+
+### Import Custom Certificates
+
+Navigate to:
+
+- **Inventory**
+- **Resources**
+- **Security**
+- **Custom SSL Certificate**
+- **Add**
+
+Import the node certificate and private key.
+
+### Verify Certificate Distribution
+
+Connect to the node CLI.
+
+```bash
+enable
+
+configure terminal
+
+show crypto certificate ca-list
+```
+
+Verify that all expected CA certificates are present.
+
+## Configure the Node Certificate
+
+From configuration mode:
+
+```bash
+crypto certificate name pudgy_cert public-cert pem
+```
+
+Paste the complete certificate, including the BEGIN and END markers.
+
+Associate the private key.
+
+```bash
+crypto certificate name pudgy_cert private-key pem
+```
+
+Paste the complete private key.
+
+### Configure the Default Certificate
+
+```bash
+crypto certificate default-cert name pudgy_cert
+
+web https certificate name pudgy_cert
+```
+
+## Verification
+
+Verify the configured certificate.
+
+```bash
+show crypto certificate default-cert public-pem
+```
+
+Open the node in a web browser and confirm:
+
+- The expected TLS certificate is presented.
+- The certificate chain is trusted.
+- HTTPS connections complete successfully.
+
+## Additional Resources
+
+- [Gigamon Documentation - Install Custom SSL Certificates](https://docs.gigamon.com/)
