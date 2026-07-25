@@ -1,1349 +1,431 @@
 ---
-title: "Clicommands"
+title: "CLI Command Reference - Monitoring & Diagnostics"
 project: "Security Analytics"
 category: "Engineering Guide"
-description: "A practical engineering guide for Security Analytics."
+description: "Monitoring, health, and diagnostic commands for Broadcom Security Analytics appliances."
 source_url: "https://github.com/PudgyDragon/Security_Analytics/blob/main/Extras/CLICommands.md"
 ---
 
-# CLI Commands
-Repository of commands and what they're used for in SSA.
-## Security Analytics Specific Commands
-<table>
-  <tr>
-    <td>
-      <h2>Command</h2>
-    </td>
-    <td>
-      <h2>Use</h2>
-    </td>
-    <td>
-      <h2>sudo</h2>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>atpsa-reserve-cpus</p>
-    </td>
-    <td>
-      <p>Not applicable to virtual machines.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>build-ds-capture</p>
-    </td>
-    <td>
-      <p>Constructions capture file system (partition, format, filesystem, fstab, mount, etc.). Ruby script. Uses a config file.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>build-ds-extras</p>
-    </td>
-    <td>
-      <p>Constructs database/home-apache for JBOD systems (format, filesystem, fstab, mount, etc.). Ruby script.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>build-ds-index</p>
-    </td>
-    <td>
-      <p>Constructs index file system (partition, format, filesystem, fstab, mount, etc.). Ruby script. Uses a config file. Replaces build-deepsee-index.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>carve-lsi</p>
-    </td>
-    <td>
-      <p>Sets up both capture and index on JBODs. For LSI-based systems (carve and other options). Ruby script. Valid in versions 4.1.2+ and later.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>cfg_bond_interface.py</p>
-    </td>
-    <td>
-      <p>A script to set the IP address of bond0.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>check-services</p>
-    </td>
-    <td>
-      <p>Displays the status of known and expected services.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>check_slot_files</p>
-    </td>
-    <td>
-      <p>Replaces dsfsck. Checks the DPDK file system and does limited repairs. Use when directed by Symantec Support.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>csr.sh</p>
-    </td>
-    <td>
-      <p>Collects and concatenates log/config/status files into a single output tarball (Customer Service Report). Used for troubleshooting an appliance. BASH script</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsadduser</p>
-    </td>
-    <td>
-      <p>Creates a new user on the appliance.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dmidecode</p>
-    </td>
-    <td>
-      <p>Intel-based hardware only. Runs to see the appliance serial number or asset tag.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dscapture</p>
-    </td>
-    <td>
-      <p>Instructs the appliance to capture network data.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsfilter</p>
-    </td>
-    <td>
-      <p>Displays filters assigned to a specified interface.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsfirewall</p>
-    </td>
-    <td>
-      <p>Toggles the IPv4 firewall on and off.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsfirewall6</p>
-    </td>
-    <td>
-      <p>Toggles the IPv6 firewall on and off.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsfsck</p>
-    </td>
-    <td>
-      <p>Check the DSFS file system and do limited repairs. Used when directed by Security Analytics Support.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dslc</p>
-    </td>
-    <td>
-      <p>Configures the logging mechanisms (syslog, SNMP, email).</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dslicenseinfo</p>
-    </td>
-    <td>
-      <p>Displays the license key and the features that are enabled on this appliance.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dslogdump</p>
-    </td>
-    <td>
-      <p>Displays the events captured by the system log.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsmigrate</p>
-    </td>
-    <td>
-      <p>Migrates capture data from a 7.x or 8.x appliance to an 8.x appliance.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsmigratedata</p>
-    </td>
-    <td>
-      <p>Migrates capture data from one appliance to another. Not for migration to 8.x.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsmon</p>
-    </td>
-    <td>
-      <p>Monitors the appliance in real time.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsmon-text</p>
-    </td>
-    <td>
-      <p>Text-based specialization of dsmon.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dspcapimport</p>
-    </td>
-    <td>
-      <p>Import PCAP files.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsportmapping</p>
-    </td>
-    <td>
-      <p>Customizes your port-to-application mapping.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsregen</p>
-    </td>
-    <td>
-      <p>Retransmits captured network traffic from a virtual network interface to a physical network interface.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsremoteimport</p>
-    </td>
-    <td>
-      <p>Exists in the CLI; document DE-24421.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsrinfo</p>
-    </td>
-    <td>
-      <p>Lightweight utility for capture file system config data (number of slots, recycle head location, etc.)(.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsseed</p>
-    </td>
-    <td>
-      <p>Generate the weed file used for the license.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsstats</p>
-    </td>
-    <td>
-      <p>Saves statistical information to a specified file.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsview</p>
-    </td>
-    <td>
-      <p>Displays live statistics of your appliance</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsview-text</p>
-    </td>
-    <td>
-      <p>Text-based specialization of dsview.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dsvmswitch</p>
-    </td>
-    <td>
-      <p>Switches VM capture configuration: 2 sizes (1 large, 1 small). For the Security Analytics Virtual Appliance only.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dszap</p>
-    </td>
-    <td>
-      <p>Deletes ALL captured data (including indexes and reports) and reinitializes the data storage. Destroys all existing capture and index data.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dump_slot</p>
-    </td>
-    <td>
-      <p>Displays various data points concerning slots.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dynfilter</p>
-    </td>
-    <td>
-      <p>Displays and manages the dynamic filters created by autonotchd</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>expand-ds-storage</p>
-    </td>
-    <td>
-      <p>Adds new disk storage subsystems without reinstalling Security Analytics.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>fix-iosched</p>
-    </td>
-    <td>
-      <p>Script. Sets I/O scheduler options. Called in first boot.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>getpmap.sh</p>
-    </td>
-    <td>
-      <p>Used by csr.sh. BASH script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>gindiag.sh</p>
-    </td>
-    <td>
-      <p>Gathers relevant information to assist in troubleshooting a GIN connection.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ipmitool</p>
-    </td>
-    <td>
-      <p>Runs ipmitool sensor for a highly detailed list of power levels, fan speeds, temperatures, and so on. For a simplified version run ipmitool sdr.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lhr_flat_to_qdb</p>
-    </td>
-    <td>
-      <p>Uploads flat-file lists of MD5, SHA1, SHA256 hashes to the Custom Hash List.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lru_calc.sh</p>
-    </td>
-    <td>
-      <p>Determine the size of the slot cache. BASH script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lsi-classify</p>
-    </td>
-    <td>
-      <p>Wrapper around the LSI RAID controller classification scheme. Ruby script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lsi-make-good</p>
-    </td>
-    <td>
-      <p>Helper utility to set physical disk state back to "good" in an LSI JBOD. BASH script</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lsi-rate-tool</p>
-    </td>
-    <td>
-      <p>Sets, resets, or shows rates as a percentage of CPU load for RAID manipulations such as background initialization, foreground initialization, consistency check, reconstructions, etc. BASH script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lsi-show</p>
-    </td>
-    <td>
-      <p>Shows LSI RAID controller data in a condensed and summarized form. Ruby script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>lspci</p>
-    </td>
-    <td>
-      <p>Shows all hardware attached to the PCI bus.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>megacli / MegaCli</p>
-    </td>
-    <td>
-      <p>LSI CLI tool</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mkdsfs</p>
-    </td>
-    <td>
-      <p>Builds a DSFS file system.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mkfs.dsfs</p>
-    </td>
-    <td>
-      <p>File-system-creation utility for the capture file system.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mkfs.dsfs.vmware</p>
-    </td>
-    <td>
-      <p>File-system-creation utility for the capture file system, used by the Security Analytics Virtual Appliance.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>oomstat.sh</p>
-    </td>
-    <td>
-      <p>Handles out-of-memory conditions. BASH script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>parted-report</p>
-    </td>
-    <td>
-      <p>Wraps the parted output system-processing for partition size info. Ruby script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>product-matrix-lookup</p>
-    </td>
-    <td>
-      <p>Drive localization file names for the Security Analytics Appliance only (not VM or third-party installations); control product/model-based settings such as IRQ balance, serial-line name, X desktop support, management interface.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm system health</p>
-    </td>
-    <td>
-      <p>View and configure system health tests.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm migrator</p>
-    </td>
-    <td>
-      <p>Imported and exported appliance settings as a JSON file.</p>
-    </td>
-    <td>
-      <p></p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm pivot_only_provider</p>
-    </td>
-    <td>
-      <p>Adds a reputation provider to use for manual submission.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm solera_acl elevate</p>
-    </td>
-    <td>
-      <p>Restores a GUI account to admin status.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm solera_acl shell_only</p>
-    </td>
-    <td>
-      <p>Creates a shell-only user.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm tally</p>
-    </td>
-    <td>
-      <p>Enables user accounts, clears session controls.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scm sessions</p>
-    </td>
-    <td>
-      <p>Clears session controls.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scotus</p>
-    </td>
-    <td>
-      <p>Gracefully stop system-related services prior to performing other tasks.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scsi-devices</p>
-    </td>
-    <td>
-      <p>Wrapper around the SCSI-to-device-name mapping. Ruby script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>solera_enet_config.py</p>
-    </td>
-    <td>
-      <p>Orders Ethernet interfaces during first boot. Python script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>solera-affinity</p>
-    </td>
-    <td>
-      <p>Sets CPU affinities. Called from startup on boot for every boot. BASH script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>update-sysctl</p>
-    </td>
-    <td>
-      <p>Tune SYSCTL settings for optimal performance. BASH script.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-</table>
+## Introduction
 
-## Supported Linux Commands
-<table>
-  <tr>
-    <td>
-      <h2>Command</h2>
-    </td>
-    <td>
-      <h2>Use</h2>
-    </td>
-    <td>
-      <h2>sudo</h2>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>awk</p>
-    </td>
-    <td>
-      <p>Combines the functions of grep and sed; allows substitution items from an input file's lines for items in a template, or performs calculations on numbers within a file.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>cat</p>
-    </td>
-    <td>
-      <p>Concatenates files and prints to the standard output.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>chkconfig</p>
-    </td>
-    <td>
-      <p>Updates and queries runlevel information for system services.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>cp</p>
-    </td>
-    <td>
-      <p>Copies files and directories.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>date</p>
-    </td>
-    <td>
-      <p>Prints or sets the system date and time.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>dhclient</p>
-    </td>
-    <td>
-      <p>Enables DHCP on an interface.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ethtool</p>
-    </td>
-    <td>
-      <p>Queries settings of an Ethernet device and changes them.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>grep</p>
-    </td>
-    <td>
-      <p>Searches files for lines containing specified criteria.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>head</p>
-    </td>
-    <td>
-      <p>Prints the first n lines of files to the standard output (default = 10 lines).</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>hwclock</p>
-    </td>
-    <td>
-      <p>Queries and sets the hardware clock.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ifconfig</p>
-    </td>
-    <td>
-      <p>Configures a specified network interface.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ifdown</p>
-    </td>
-    <td>
-      <p>Disables a specified network interface.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ifup</p>
-    </td>
-    <td>
-      <p>Enables a specified network interface.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ip</p>
-    </td>
-    <td>
-      <p>To view and edit routing, devices, policy routing, and tunnels.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>jsondiff</p>
-    </td>
-    <td>
-      <p>Usage: jsondiff left_file.json right_file.json.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>jsondump</p>
-    </td>
-    <td>
-      <p></p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>kill</p>
-    </td>
-    <td>
-      <p>Terminates a process.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>less</p>
-    </td>
-    <td>
-      <p>Enables forward and backware movement while reviewing a text file.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ln</p>
-    </td>
-    <td>
-      <p>Creates links to target files.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ls</p>
-    </td>
-    <td>
-      <p>Lists information such as size, date created, and directory for specified files.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mii-tool</p>
-    </td>
-    <td>
-      <p>View and edit Media-Independent Interface status.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mkdir</p>
-    </td>
-    <td>
-      <p>Creates directories.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mkfs</p>
-    </td>
-    <td>
-      <p>Builds a Linux file system.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mount</p>
-    </td>
-    <td>
-      <p>Mounts a file system.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>mv</p>
-    </td>
-    <td>
-      <p>Renames or moves files.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ngrep</p>
-    </td>
-    <td>
-      <p>Searches for strings across packet data.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>netstat</p>
-    </td>
-    <td>
-      <p>Prints network connections, routing tables, interface statistics, masquerade connections, and multicast memberships on the standard output.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>nice</p>
-    </td>
-    <td>
-      <p>Runs a command at a lower priority level.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>nohup</p>
-    </td>
-    <td>
-      <p>Suppresses a hang-up signal while running a command.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ntpdate</p>
-    </td>
-    <td>
-      <p>Sets a system's clock to match the time published by servers running NTP.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>pam_tally2</p>
-    </td>
-    <td>
-      <p>Manages authentication timeouts.</p>
-    </td>
-    <td>
-      <p></p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>passwd</p>
-    </td>
-    <td>
-      <p>Change the root-level password. Initial root password is set on /settings/initial_config.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>ping</p>
-    </td>
-    <td>
-      <p>Uses ICMP to test host connectivity.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>pkill</p>
-    </td>
-    <td>
-      <p>Looks up or signals processes based on name and other attributes.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>reboot</p>
-    </td>
-    <td>
-      <p>Reboots the appliance.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>rm</p>
-    </td>
-    <td>
-      <p>Deletes a file.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>rmdir</p>
-    </td>
-    <td>
-      <p>Deletes a directory.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>route</p>
-    </td>
-    <td>
-      <p>Show or edit the IP routing table.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>scp</p>
-    </td>
-    <td>
-      <p>Securely copies files between hosts on a network.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>sed</p>
-    </td>
-    <td>
-      <p>Replaces or modifies lines with the specified file.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>systemctl</p>
-    </td>
-    <td>
-      <p>Stops, starts, or restars a system service.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>service</p>
-    </td>
-    <td>
-      <p>Stops, starts, or restarts a system service.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>shutdown</p>
-    </td>
-    <td>
-      <p>Shuts down the appliance.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>solo</p>
-    </td>
-    <td>
-      <p>Prevents multiple cron instances from running simultaneously.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>sync</p>
-    </td>
-    <td>
-      <p>Synchronizes data on disk with memory.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>tail</p>
-    </td>
-    <td>
-      <p>Prints the last n lines of files to the standard output (default = 10 lines).</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>top</p>
-    </td>
-    <td>
-      <p>Displays top CPU processes.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>umount</p>
-    </td>
-    <td>
-      <p>Dismounts file systems.</p>
-    </td>
-    <td>
-      <p>Yes</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>uname</p>
-    </td>
-    <td>
-      <p>Prints system information.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>userdel</p>
-    </td>
-    <td>
-      <p>Deletes a user account and related files.</p>
-    </td>
-    <td>
-      <p></p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>vim</p>
-    </td>
-    <td>
-      <p>Opens the VIMproved programming text editor.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p>whoami</p>
-    </td>
-    <td>
-      <p>Prints the user name/user ID for the current session.</p>
-    </td>
-    <td>
-      <p>No</p>
-    </td>
-  </tr>
-  
-</table>
+The **Security Analytics CLI Command Reference** is a comprehensive collection of command-line utilities available on Broadcom Security Analytics appliances. It is intended to serve as a practical engineering reference for administrators, support personnel, and security engineers responsible for deploying, maintaining, and troubleshooting Security Analytics environments.
+
+Unlike the original CLI reference, which presents commands as a single alphabetical list, this guide organizes commands into functional categories that mirror common operational workflows. Whether you're investigating an appliance issue, collecting diagnostic data, configuring storage, managing packet capture, administering users, or performing general Linux administration, the goal is to make the appropriate commands easier to discover and understand.
+
+This reference is designed to complement—not replace—the official Broadcom documentation. Where appropriate, additional context, operational guidance, and field notes have been included to help explain when a command is commonly used and any important considerations before executing it.
+
+The reference is organized into the following sections:
+
+- Monitoring & Diagnostics
+- Diagnostics & Support
+- Storage & Filesystems
+- Packet Capture & Migration
+- Networking, Users & Licensing
+- Hardware & RAID
+- Linux Administration (A–M)
+- Linux Administration (N–Z)
+
+> **Important**
+>
+> Commands documented in this reference range from informational utilities to commands capable of modifying system configuration or deleting data. Always review the command's purpose, verify backups when applicable, and perform potentially disruptive operations during an approved maintenance window.
+
+## Common Troubleshooting Workflow
+
+Although every issue is different, a typical troubleshooting workflow is:
+
+1. Verify appliance services are running correctly.
+2. Review overall appliance health and hardware status.
+3. Examine relevant logs and diagnostic output.
+4. Collect a Customer Service Report (CSR) before making significant changes whenever practical.
+5. Verify storage, networking, and packet capture functionality as appropriate.
+6. Escalate to Broadcom Support if additional analysis or vendor assistance is required.
+## Service Monitoring
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `check-services` | Displays the status of expected Security Analytics services. | No |
+| `dsmon` | Monitors the appliance in real time. | No |
+| `dsmon-text` | Text-based version of `dsmon`. | No |
+| `dsview` | Displays live appliance statistics. | No |
+| `dsview-text` | Text-based version of `dsview`. | No |
+| `dsstats` | Saves appliance statistics to a file for later review. | No |
+
+> **Field Note**
+>
+> `check-services` should usually be the first command executed when troubleshooting appliance functionality.
+
+## Hardware Health
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `dmidecode` | Displays hardware serial number and asset information on supported Intel platforms. | No |
+| `ipmitool` | Displays sensors including temperatures, fan speeds, voltages, and power information. | No |
+| `lspci` | Lists PCI devices detected by the operating system. | No |
+
+## Capture Health
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `dump_slot` | Displays capture slot information. | No |
+| `dsrinfo` | Displays capture filesystem configuration including slot information and recycle status. | Yes |
+
+## Diagnostics
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `csr.sh` | Generates a Customer Service Report (CSR) archive containing logs, configuration, and appliance state information for Broadcom Support. | No |
+| `getpmap.sh` | Helper script used during CSR collection. | No |
+| `gindiag.sh` | Collects troubleshooting information for GIN connectivity issues. | No |
+| `dslogdump` | Displays events recorded by the appliance logging system. | No |
+| `dynfilter` | Displays and manages dynamic filters created by `autonotchd`. | No |
+| `check_slot_files` | Validates and performs limited repair of the DPDK filesystem when directed by Broadcom Support. | Yes |
+| `dsfsck` | Performs integrity checking and limited repair of the DSFS capture filesystem when directed by Broadcom Support. | No |
+
+> **Warning**
+>
+> `check_slot_files` and `dsfsck` should generally be executed only under the guidance of Broadcom Support.
+
+## Customer Service Report (CSR)
+
+The Customer Service Report (CSR) is one of the most valuable artifacts when opening a Broadcom Support case.
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `csr.sh` | Support | Collects logs, configuration, status information, and appliance health into a single archive for Broadcom Support. | No |
+| `getpmap.sh` | Support | Helper script used internally during CSR generation. | No |
+
+> **Field Note**
+>
+> Generate a CSR before restarting services or making significant configuration changes whenever possible.
+
+## Logging
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dslogdump` | Logging | Displays events captured by the appliance logging subsystem. | No |
+| `dslc` | Logging | Configures appliance logging, including Syslog, SNMP, and email notifications. | Yes |
+
+## Filesystem Validation
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `check_slot_files` | Filesystem | Validates and performs limited repair of the DPDK filesystem. Use only when directed by Broadcom Support. | Yes |
+| `dsfsck` | Filesystem | Checks and performs limited repair of the DSFS capture filesystem. Use only when directed by Broadcom Support. | No |
+
+> **Warning**
+>
+> Filesystem repair utilities should not be considered routine maintenance. Follow Broadcom Support guidance before running repair operations.
+
+## Diagnostic Utilities
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `gindiag.sh` | Diagnostics | Collects troubleshooting information related to GIN connectivity. | No |
+| `dynfilter` | Diagnostics | Displays and manages dynamic filters created by `autonotchd`. | No |
+| `dump_slot` | Diagnostics | Displays detailed information about capture slots. | No |
+| `dsrinfo` | Diagnostics | Displays capture filesystem configuration, slot counts, and recycle information. | Yes |
+
+## Storage Provisioning
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `build-ds-capture` | Capture Storage | Creates and configures the capture filesystem, including partitioning, formatting, mounting, and `/etc/fstab` updates. | Yes |
+| `build-ds-index` | Index Storage | Creates and configures the index filesystem. Replaces the legacy `build-deepsee-index` utility. | Yes |
+| `build-ds-extras` | Database Storage | Creates the database and home-apache filesystems for JBOD deployments. | Yes |
+| `expand-ds-storage` | Storage Expansion | Adds supported storage subsystems without reinstalling Security Analytics. | No |
+
+## Capture Filesystem Utilities
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `mkdsfs` | Capture Filesystem | Builds a DSFS capture filesystem. | No |
+| `mkfs.dsfs` | Capture Filesystem | Creates a DSFS capture filesystem on supported hardware. | Yes |
+| `mkfs.dsfs.vmware` | Virtual Appliance | Creates a DSFS capture filesystem for the Security Analytics Virtual Appliance. | Yes |
+| `check_slot_files` | Validation | Validates and performs limited repair of the DPDK filesystem. | Yes |
+| `dsfsck` | Validation | Performs integrity checks and limited repair of the DSFS filesystem. | No |
+
+## JBOD & Storage Initialization
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `carve-lsi` | JBOD | Initializes capture and index storage on supported LSI-based JBOD systems. | Yes |
+| `parted-report` | Storage | Reports partition layout and sizing information. | No |
+| `scsi-devices` | Storage | Displays SCSI-to-device mappings for attached storage devices. | No |
+
+## Performance & Initialization
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `fix-iosched` | Performance | Configures I/O scheduler settings during appliance initialization. | Yes |
+| `update-sysctl` | Performance | Applies recommended Linux kernel tuning parameters. | No |
+| `solera-affinity` | Performance | Configures CPU affinity during system startup. | No |
+| `atpsa-reserve-cpus` | Performance | Reserves CPUs for supported physical appliances. Not applicable to virtual machines. | No |
+
+> **Field Note**
+>
+> Storage provisioning commands are typically executed during initial deployment, hardware replacement, or under the direction of Broadcom Support. They are not intended for routine administration.
+
+## Packet Capture
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dscapture` | Capture | Starts or controls network packet capture on the appliance. | No |
+| `dspcapimport` | Capture Import | Imports PCAP files into the appliance for analysis. | Yes |
+| `dsremoteimport` | Capture Import | Imports capture data from a remote source. Availability depends on platform and version. | Yes |
+| `dsregen` | Packet Replay | Replays captured network traffic from a virtual interface to a physical interface. | No |
+
+> **Field Note**
+>
+> `dspcapimport` is commonly used during investigations to analyze captures collected from external devices without requiring live traffic.
+
+## Capture Management
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dsfilter` | Capture Filters | Displays filters assigned to a specified capture interface. | Yes |
+| `dsportmapping` | Configuration | Configures custom port-to-application mappings used during traffic analysis. | No |
+| `dump_slot` | Capture Storage | Displays information about capture slots and their utilization. | No |
+| `dsrinfo` | Capture Storage | Displays capture filesystem configuration, slot count, and recycle information. | Yes |
+| `lru_calc.sh` | Cache | Calculates slot cache sizing used by the capture subsystem. | No |
+
+## Migration
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dsmigrate` | Migration | Migrates capture data from legacy 7.x or 8.x appliances to supported 8.x platforms. | No |
+| `dsmigratedata` | Migration | Transfers capture data between compatible Security Analytics appliances. | No |
+| `scm migrator` | Configuration Migration | Imports and exports appliance configuration as JSON. | No |
+
+> **Warning**
+>
+> Migration utilities should be used only after verifying software compatibility, storage capacity, and available maintenance windows.
+
+## Data Management
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dszap` | Data Reset | Deletes all capture, index, and report data before reinitializing appliance storage. | Yes |
+| `dsvmswitch` | Virtual Appliance | Switches between supported virtual capture configurations for Security Analytics virtual appliances. | Yes |
+
+> **Warning**
+>
+> `dszap` permanently destroys all stored capture and index data. Confirm backups and obtain appropriate approval before executing this command.
+
+## Network Configuration
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `cfg_bond_interface.py` | Networking | Configures the IP address assigned to the `bond0` management interface. | No |
+| `solera_enet_config.py` | Networking | Orders and configures Ethernet interfaces during the appliance's initial boot process. | No |
+| `dsportmapping` | Application Mapping | Configures custom port-to-application mappings used during packet analysis. | No |
+| `dsfilter` | Capture Networking | Displays capture filters configured on a specified interface. | Yes |
+
+## Firewall Configuration
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dsfirewall` | Firewall | Enables, disables, or reports the status of the IPv4 firewall. | Yes |
+| `dsfirewall6` | Firewall | Enables, disables, or reports the status of the IPv6 firewall. | Yes |
+
+> **Warning**
+>
+> Verify remote access methods before modifying firewall rules to prevent accidental loss of management connectivity.
+
+## User Management
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dsadduser` | User Management | Creates a local user account on the appliance. | Yes |
+| `scm solera_acl elevate` | User Management | Restores a Security Analytics GUI account to administrative privileges. | No |
+| `scm solera_acl shell_only` | User Management | Creates a shell-only user account. | No |
+| `scm tally` | Authentication | Clears authentication lockouts and re-enables user access. | No |
+| `scm sessions` | Session Management | Clears active session controls. | No |
+
+## Licensing
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dslicenseinfo` | Licensing | Displays the installed license and enabled appliance features. | No |
+| `dsseed` | Licensing | Generates the appliance seed file required during licensing operations. | No |
+
+## Appliance Administration
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dslc` | Notifications | Configures Syslog, SNMP, and email notification settings. | Yes |
+| `scm system health` | Health | Views and configures appliance health tests. | No |
+| `scm pivot_only_provider` | Threat Intelligence | Configures a reputation provider used for manual submissions. | No |
+| `scotus` | Services | Gracefully stops appliance-related services before maintenance operations. | No |
+| `product-matrix-lookup` | Platform | Displays product-specific configuration information for supported appliance models. | No |
+
+## Hardware Discovery
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `dmidecode` | Hardware | Displays appliance hardware information such as serial number, BIOS details, and asset tags on supported Intel platforms. | No |
+| `lspci` | Hardware | Lists all PCI devices detected by the operating system. | No |
+| `ipmitool` | Hardware Monitoring | Displays system health including temperatures, fan speeds, voltages, and sensor status. | No |
+| `scsi-devices` | Hardware | Maps SCSI devices to operating system device names. | No |
+
+## LSI RAID Controller Utilities
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `megacli` / `MegaCli` | RAID | Primary command-line interface for supported LSI RAID controllers. | No |
+| `lsi-show` | RAID | Displays summarized LSI RAID controller information. | No |
+| `lsi-classify` | RAID | Identifies and classifies attached LSI RAID hardware. | No |
+| `lsi-rate-tool` | RAID | Views or adjusts controller background task rates such as initialization, rebuilds, and consistency checks. | No |
+| `lsi-make-good` | RAID | Returns a physical disk to the **Good** state after maintenance or replacement. | No |
+
+> **Field Note**
+>
+> RAID rebuild and consistency check rates can significantly impact capture performance. Consider maintenance windows before modifying controller settings.
+
+## JBOD Administration
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `carve-lsi` | JBOD | Initializes capture and index storage on supported LSI-based JBOD appliances. | Yes |
+| `build-ds-extras` | JBOD | Creates database and supplemental filesystems used on JBOD deployments. | Yes |
+| `expand-ds-storage` | JBOD | Adds supported storage shelves without reinstalling Security Analytics. | No |
+
+## Platform Optimization
+
+| Command | Category | Purpose | Requires sudo |
+| --- | --- | --- | :---: |
+| `solera-affinity` | Performance | Configures CPU affinity for optimized packet processing during system startup. | No |
+| `fix-iosched` | Performance | Applies recommended Linux I/O scheduler settings. | Yes |
+| `update-sysctl` | Performance | Applies Broadcom-recommended kernel tuning parameters. | No |
+| `atpsa-reserve-cpus` | Performance | Reserves CPUs for supported physical appliances. Not applicable to virtual appliances. | No |
+
+## Text Processing
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `awk` | Pattern scanning, reporting, and text processing. | No |
+| `cat` | Display or concatenate file contents. | No |
+| `grep` | Search files for matching text. | No |
+| `head` | Display the beginning of a file. | No |
+| `jsondiff` | Compare two JSON files. | No |
+| `jsondump` | Display JSON data in a readable format. | No |
+| `less` | View text files interactively. | No |
+| `sed` | Stream editor for modifying text. | No |
+
+## File Management
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `cp` | Copy files and directories. | No |
+| `ln` | Create hard or symbolic links. | No |
+| `ls` | List directory contents. | No |
+| `mkdir` | Create directories. | No |
+| `mount` | Mount a filesystem. | No |
+| `mv` | Move or rename files and directories. | No |
+
+## System Administration
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `chkconfig` | Configure legacy system service runlevels. | No |
+| `date` | Display or modify the system date and time. | No |
+| `hwclock` | Display or update the hardware clock. | No |
+| `nice` | Start a process with modified scheduling priority. | No |
+| `nohup` | Continue running a command after logout. | No |
+
+## Networking
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `dhclient` | Request an IP address using DHCP. | No |
+| `ethtool` | Display or configure Ethernet device settings. | No |
+| `ifconfig` | Display or configure network interfaces. | No |
+| `ifdown` | Disable a network interface. | Yes |
+| `ifup` | Enable a network interface. | Yes |
+| `ip` | Display or configure IP networking, routing, and interfaces. | Yes |
+| `mii-tool` | Display or configure Media Independent Interface information. | Yes |
+| `netstat` | Display network connections, routing tables, and interface statistics. | No |
+
+## Process Management
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `kill` | Send a signal to terminate or control a process. | Yes |
+| `ngrep` | Search packet payloads for matching strings. | Yes |
+
+## Filesystem Utilities
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `mkfs` | Create a Linux filesystem. | No |
+
+## Networking
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `nslookup` | Query DNS servers for hostname and IP address resolution. | No |
+| `ping` | Verify basic network connectivity to a remote host. | No |
+| `route` | Display or modify the system routing table. | Yes |
+| `scp` | Securely copy files between systems over SSH. | No |
+| `ssh` | Connect securely to a remote Linux system. | No |
+| `tcpdump` | Capture and analyze network traffic. | Yes |
+| `traceroute` | Display the network path to a remote host. | No |
+| `wget` | Download files from HTTP, HTTPS, or FTP servers. | No |
+
+## Process & Performance
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `ps` | Display running processes. | No |
+| `renice` | Modify the scheduling priority of an existing process. | Yes |
+| `sar` | Collect and report system activity statistics. | No |
+| `strace` | Trace system calls made by a running process. | Yes |
+| `top` | Display real-time process and CPU utilization information. | No |
+| `uptime` | Display system uptime and load averages. | No |
+| `vmstat` | Report virtual memory and CPU statistics. | No |
+
+## File & Filesystem Management
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `rm` | Remove files and directories. | Yes |
+| `tar` | Archive or extract files. | No |
+| `touch` | Create an empty file or update timestamps. | No |
+| `umount` | Unmount a filesystem. | Yes |
+| `vi` | Edit text files using the Vi editor. | No |
+
+## User & Security Administration
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `passwd` | Change a user account password. | Yes |
+| `su` | Switch to another user account. | Yes |
+| `sudo` | Execute commands with elevated privileges. | Yes |
+| `who` | Display currently logged-in users. | No |
+| `whoami` | Display the current user account. | No |
+
+## System Information
+
+| Command | Purpose | Requires sudo |
+| --- | --- | :---: |
+| `uname` | Display kernel and operating system information. | No |
+| `yum` | Install, update, or remove software packages on supported RHEL-based systems. | Yes |
+| `zip` | Compress files into ZIP archives. | No |
+
+> **Field Note**
+>
+> Most production troubleshooting requires only a small subset of these commands. Learning `top`, `ps`, `tcpdump`, `tar`, `scp`, `ssh`, and `vmstat` provides an excellent foundation for Security Analytics administration.
+
+## Conclusion
+
+This document completes the eight-part Security Analytics CLI Command Reference. Together, the documents provide a task-oriented reference covering:
+
+- Monitoring & Diagnostics
+- Diagnostics & Support
+- Storage & Filesystems
+- Packet Capture & Migration
+- Networking, Users & Licensing
+- Hardware & RAID
+- Linux Administration (A–M)
+- Linux Administration (N–Z)
+
+The reference is intended to complement Broadcom documentation by organizing commands according to common operational workflows while preserving the command inventory from the original CLI reference.
