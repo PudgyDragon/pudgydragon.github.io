@@ -1,32 +1,83 @@
 ---
-title: "Cisco Ise Pxgrid Failed"
+title: "Resolve Cisco ISE pxGrid Configuration Errors"
 project: "QRadar"
 category: "Troubleshooting"
-description: "A practical troubleshooting for QRadar."
+description: "Resolve Cisco ISE pxGrid application configuration errors caused by stale browser data when configuring the QRadar Cisco ISE pxGrid application."
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Troubleshooting/Cisco%20ISE%20pxGrid%20Failed"
 ---
 
-During the configuration of the Cisco ISE pxGrid Application, we kept having two issues occur:
+## Introduction
 
-Failed to save QRadar settings - App Settings are already configured
-Failed to save deployment settings - 'app_id'
+While configuring the Cisco ISE pxGrid application, you may encounter errors that prevent the application from saving its configuration. Although these messages appear to indicate an application or deployment problem, the underlying cause may simply be stale browser data.
 
-I'll admit, after figuring out the issue, I felt like an idiot.
+This guide explains how to verify the issue and resolve it.
 
-Login to your QRadar console as root
-Find the qapp ID of your pxGrid instance using:
+> **Symptoms**
+>
+> - **Failed to save QRadar settings - App Settings are already configured**
+> - **Failed to save deployment settings - 'app_id'**
+> - QRadar refuses to save Cisco ISE pxGrid configuration changes.
+> - Configuration appears correct, but the application continues to return HTTP 400 errors.
 
+## Cause
+
+During application configuration, cached browser data may cause the Cisco ISE pxGrid application to submit outdated or invalid information. This can result in misleading configuration errors even though the application itself is functioning correctly.
+
+## Resolution
+
+Log in to the QRadar Console as the `root` user.
+
+Locate the Cisco ISE pxGrid application ID.
+
+```bash
 /opt/qradar/store/recon ps
+```
 
-Run the command:
+Identify the application instance for Cisco ISE pxGrid and note its ID.
 
-tail -f /store/docker/volumes/qapp-<ID>/log/startup.log
+View the application startup log.
 
-If you're getting the following errors:
+```bash
+tail -f /store/docker/volumes/qapp-<APP_ID>/log/startup.log
+```
 
-"POST /app_settings/clusters HTTP/1.1" 400
-"POST /app_settings HTTP/1.1" 400
+If the log repeatedly reports errors similar to:
 
-Clear your browser cache.
+```text
+POST /app_settings/clusters HTTP/1.1" 400
+POST /app_settings HTTP/1.1" 400
+```
 
-If that worked, you'll save yourself the hours I spent trying to figure out what was wrong.
+clear your web browser's cache.
+
+After clearing the cache, close the browser, reconnect to the QRadar Console, and attempt the configuration again.
+
+> **Field Note**
+>
+> This issue can easily be mistaken for an application, deployment, or API problem. In our case, several hours were spent reviewing logs and configuration before discovering that clearing the browser cache immediately resolved both errors.
+
+## Verification
+
+After clearing the browser cache:
+
+- Reopen the QRadar web interface.
+- Return to the Cisco ISE pxGrid application.
+- Save the configuration again.
+- Verify that the configuration completes without errors.
+- Confirm the HTTP 400 messages no longer appear in the application log.
+
+## If the Problem Persists
+
+If the issue continues after clearing the browser cache:
+
+- Verify you are configuring the correct Cisco ISE pxGrid application instance.
+- Review the application startup log for additional errors.
+- Confirm communication between QRadar and Cisco ISE.
+- Verify the Cisco ISE certificates, service account, and pxGrid configuration are valid.
+- Restart the application if configuration changes were recently made.
+
+## Additional Resources
+
+- IBM QRadar App Framework Documentation
+- IBM QRadar Cisco ISE pxGrid Application Documentation
+- Cisco Identity Services Engine (ISE) pxGrid Documentation
