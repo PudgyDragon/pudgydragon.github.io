@@ -6,7 +6,7 @@ description: "Restore IBM QRadar applications that are missing from the dashboar
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Troubleshooting/Apps%20Not%20on%20Dashboard"
 ---
 
-# Introduction
+## Introduction
 
 Applications may occasionally disappear from the **Apps** dashboard or fail to load correctly after an upgrade, deployment, or unexpected application failure. In many cases, the application instance has entered an **ERROR** state and must be restarted before it becomes available again.
 
