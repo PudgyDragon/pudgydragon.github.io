@@ -1,12 +1,12 @@
 ---
-title: "Change Ip"
+title: "Gigamon FM IP Configuration"
 project: "Gigamon"
 category: "Engineering Guide"
-description: "A practical engineering guide for Gigamon."
+description: "Gigamon FM IP Configuration"
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/Guides/Change_IP.md"
 ---
 
-<h1>Gigamon FM IP Change</h1>
+<h1>Introduction</h1>
 <p>Guide for updating the IP address on your Gigamon FM. Nothing crazy. Legitimate guides for what I'm doing can be found here</p>
 <a href="https://docs.gigamon.com/doclib611/Content/GV-FM-Install/Initial_GigaVUE-FM_Configuration__2.html">Initial GigaVUE‑FM Configuration</a>
 
