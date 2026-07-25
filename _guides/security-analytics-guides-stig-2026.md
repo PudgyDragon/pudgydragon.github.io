@@ -1,105 +1,227 @@
 ---
-title: "Stig 2026"
+title: "Security Analytics STIG Reference"
 project: "Security Analytics"
 category: "STIG"
-description: "A practical stig for Security Analytics."
+description: "Common Security Analytics settings that assist with meeting Network Device Management STIG requirements."
 source_url: "https://github.com/PudgyDragon/Security_Analytics/blob/main/Guides/STIG_2026.md"
 ---
 
-<h1>Security Analytics STIG Guide</h1>
-<p>Nothing crazy, just a point in the right direction for where to enable certain things to meet STIG requirements for a Network Device Management STIG checklist. Most of the checks are already standard on Security Analytics, 
-  including the ones I'll be posting here. It's mostly to verify that they are enabled.</p>
+## Introduction
 
-<h2>Web Interface Settings</h2>
-<p>Navigate to the Web Interface settings through the Settings cog. Verify or change the following settings</p>
-<pre><code>
-  Inactivity Timeout: 5 minutes
-  Message of the Day: Paste whatever your organization requires users to see when logging in
-  
-</code></pre>
+This guide provides a reference for Security Analytics settings that commonly assist in meeting **Network Device Management STIG** requirements.
 
-<h2>Communication Settings</h2>
-<p>Navigate to the Communication settings. Verify or change the following settings</p>
-<pre><code>
-  Syslog Settings
-      Enable Coalescing
-      Syslog Facility: Syslog
-      Syslog Server: Your SIEM/Syslog Server
-      Protocol: TCP
-  SNMP Settings
-      Trap Servers
-          Server: Company SNMP Server
-          Port: 162
-          Enable Authentication: Enabled (if your SNMP has authenticaiton)
-          Read-Only Username: SNMP Credentials
-          Authentication Password: SNMP Credentials
-          Privacy Encryption Password: SNMP Credentials
-  Advanced
-      Remote Syslog
-          Ensure all boxes are checked
-  
-</code></pre>
+Many STIG controls are already implemented by Security Analytics out of the box. Rather than providing a complete STIG checklist, this guide highlights configuration areas that administrators should verify or customize to align with their organization's security policy.
 
-<h2>Date & Time Settings</h2>
-<p>Navigate to Date/Time through the settings cog. Add your settings in the following</p>
-<pre><code>
-  Use NTP: Enabled
-  Primary NTP: Your primary NTP server
-  Secondary/Tertiary NTP: If you have more than one for redundancy
-  
-</code></pre>
+> **Important**
+>
+> This guide is **not** a replacement for the official DISA STIG or your organization's security policy. Always validate configuration requirements against the current STIG release and any applicable organizational overlays.
 
-<h2>Security Settings</h2>
-<p>Navigate to the Security settings. Verify or change the following settings</p>
-<pre><code>
-  Web Access
-      Maximum Login Attempts: 3
-      Require HTTPS: Enabled
-      Maximum Concurrent Sessions: 10
-  Password Strength/Settings
-      Length: 15
-      Require Digits
-      Require Other Characters
-      Require Uppercase
-      Require Lowercase
-      Different from Previous: 10
-  PKI and SSL
-      Appliance Certificate
-          Add your server PEM/CER file
-      Appliance Private Key
-          Add your servers Private Key
-      URL of Certificate Revocation List (CRL)
-          Use the CRL URL for whatever CA cert your server cert was issued through
-  
-</code></pre>
+> **Note**
+>
+> Most settings described in this guide are verification items rather than configuration changes. In many cases, Security Analytics already ships with secure defaults.
 
-<h2>System Settings</h2>
-<p>This requires a little more work on your part, and a backup server you have access to. Navigate to System settings and generate a New SSH Key. Copy the SSH key to your backup server so backups are able to be transferred. 
-There should be online guides for this. I might cover it later on in the future if my ADHD allows me.</p>
-<p>After you copy the SSH key to your backup server, verify or change the following</p>
-<pre><code>
-  Automated Backup Management
-      Backup Type: Reference Configuration or Full System (based on your company requirements)
-      Backup Frequency: Weekly (or based on your company policy)
-      Mandatory Backup Interval: Monthly (or based on your company policy)
-      Remote Host: Your backup server IP
-      Remote Path: Whatever path on your backup server they should be saved to
-      Remote Username: Username that will be used for logging into the backup server
-  
-</code></pre>
+## Web Interface
 
-<h2>FIPS</h2>
-<p>Broadcom used to provide the ability for users to move back and forth between FIPS mode, but the ability to do so has been removed (verified with Support). However, 
-Security Analytics by default is already compliant with FIPS algorithms. You can verify this for yourself in the following locations</p>
-<pre><code>
-  cat /etc/environment
-  cat /etc/sysconfig/httpd
-  
-</code></pre>
-<p>The algorithms listed should match up with whatever the FIPS check requires. If not, you can edit the two files and make the required changes. In theory, doing so would just require 
-you to restart httpd and log out and back in for any changes to take affect.</p>
+Navigate to:
 
+```text
+Settings → Web Interface
+```
 
-<h2>Yay Compliance</h2>
-<p>That should be it. Again, many of the checks are already covered by the device, or in instances of the firewall settings, it's purely based on your company and environment, 
-in which I won't be going into detail for reasons. Hope this guide helps!</p>
+Verify or configure the following settings.
+
+| Setting | Recommended Value |
+|----------|-------------------|
+| Inactivity Timeout | 5 Minutes |
+| Message of the Day | Organization-approved login banner |
+
+> **Field Note**
+>
+> The login banner should comply with your organization's approved legal notification or DoD warning banner requirements.
+
+## Communication Settings
+
+Navigate to:
+
+```text
+Settings → Communication
+```
+
+### Syslog
+
+Verify the following configuration.
+
+```text
+Enable Coalescing: Enabled
+Syslog Facility: Syslog
+Remote Syslog Server: <Your SIEM>
+Protocol: TCP
+```
+
+### SNMP
+
+If SNMP is required:
+
+```text
+Trap Server: <Your SNMP Server>
+Port: 162
+Authentication: Enabled
+Read-Only Username: <SNMP User>
+Authentication Password: <Password>
+Privacy Password: <Password>
+```
+
+### Advanced
+
+Under **Remote Syslog**, verify all required forwarding options are enabled.
+
+> **Important**
+>
+> Organizations that prohibit SNMP should leave the service disabled rather than configuring unused credentials.
+
+## Date and Time
+
+Navigate to:
+
+```text
+Settings → Date & Time
+```
+
+Verify the following.
+
+```text
+Use NTP: Enabled
+Primary NTP Server: <Primary Server>
+Secondary NTP Server: <Optional>
+Tertiary NTP Server: <Optional>
+```
+
+Accurate time synchronization is essential for log correlation, incident response, and forensic investigations.
+
+## Security Settings
+
+Navigate to:
+
+```text
+Settings → Security
+```
+
+### Web Access
+
+```text
+Maximum Login Attempts: 3
+Require HTTPS: Enabled
+Maximum Concurrent Sessions: 10
+```
+
+### Password Policy
+
+Recommended values:
+
+```text
+Minimum Length: 15
+Require Uppercase Characters
+Require Lowercase Characters
+Require Numbers
+Require Special Characters
+Password History: 10
+```
+
+### PKI and SSL
+
+Configure:
+
+- Appliance certificate
+- Appliance private key
+- Certificate Revocation List (CRL)
+
+The CRL should reference the issuing Certificate Authority for the appliance certificate.
+
+## System Settings
+
+Navigate to:
+
+```text
+Settings → System
+```
+
+Generate a new SSH key pair.
+
+Copy the public key to the remote backup server that will receive automated backups.
+
+After establishing SSH trust, configure automated backups.
+
+Example configuration:
+
+```text
+Backup Type:
+Reference Configuration or Full System
+
+Backup Frequency:
+Weekly (or organizational policy)
+
+Mandatory Backup Interval:
+Monthly (or organizational policy)
+
+Remote Host:
+<Backup Server>
+
+Remote Path:
+<Backup Directory>
+
+Remote Username:
+<Backup User>
+```
+
+> **Field Note**
+>
+> Backup retention schedules and frequencies should always follow your organization's data retention policy rather than the examples shown above.
+
+## FIPS Verification
+
+Earlier releases of Security Analytics exposed an option to enable or disable FIPS mode.
+
+Broadcom has since removed this capability. According to Broadcom Support, Security Analytics already uses FIPS-approved cryptographic algorithms by default.
+
+You can verify the configured algorithms by reviewing:
+
+```bash
+cat /etc/environment
+```
+
+and
+
+```bash
+cat /etc/sysconfig/httpd
+```
+
+Compare the configured algorithms against your current FIPS requirements.
+
+If organizational policy requires different cipher selections, update the configuration files as necessary and restart the affected services.
+
+> **Warning**
+>
+> Modifying cryptographic settings should be validated in a non-production environment before deployment.
+
+## Verification
+
+After completing the configuration:
+
+- Verify HTTPS is enforced.
+- Confirm the login banner is displayed.
+- Verify password complexity requirements.
+- Confirm NTP synchronization.
+- Verify remote syslog forwarding.
+- Validate automated backups.
+- Verify the appliance certificate is trusted.
+- Confirm CRL retrieval succeeds.
+
+## Additional Considerations
+
+Security Analytics satisfies many STIG controls through its default configuration. Other controls, including firewall policy, network segmentation, account management, and centralized logging, depend on your organization's architecture and security requirements.
+
+This guide focuses only on Security Analytics configuration and should be used alongside the official STIG documentation during compliance reviews.
+
+> **Field Note**
+>
+> Compliance is rarely achieved through product configuration alone. Security Analytics is one component of a larger security architecture, and many STIG findings ultimately depend on enterprise policy, network design, identity management, and operational procedures.
