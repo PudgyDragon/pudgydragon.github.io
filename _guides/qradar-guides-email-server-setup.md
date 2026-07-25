@@ -1,33 +1,84 @@
 ---
-title: "Email Server Setup"
+title: "QRadar Email Server Configuration"
 project: "QRadar"
 category: "Engineering Guide"
-description: "A practical engineering guide for QRadar."
+description: "Configure an SMTP email server for QRadar notifications and alerts."
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/Email%20Server%20Setup"
 ---
 
-Guide for setting up an email server on QRadar to allow emails to be sent from the SIEM.
+## Introduction
 
-The guide found through IBM doesn't have all the steps that I will outline below:
-https://www.ibm.com/docs/en/qradar-on-cloud?topic=hosts-adding-email-server
+QRadar uses an SMTP email server to send notifications, scheduled reports, and rule-generated alerts. Before email notifications can be delivered, an email server must be configured and assigned to the appropriate managed hosts.
 
-On the Admin tab, under the System Configuration section, click Email Server Management
-Click "Add"
-Enter a hostname (it can't be an IP)
-Enter the port as 25 (default port may be different)
-Add a description
-There shouldn't be a need for username or password unless otherwise specified
-TLS should be enabled
-Click "Save"
+This guide walks through configuring an SMTP email server, validating connectivity, and assigning a sender address for outbound email.
 
-After adding and configuring the email server, you need to assign it to your host(s):
-On the Admin tab, click System and License Management and select the host/console
-Ensure Systems is selected in the Display list
-Under Actions, select View and Manage System
-On the Email Server tab, click the Test Connection button; you may need to have a rule added to your firewall
-    to allow the traffic if the test fails
-If the test is successful, click "Save"
+## Configure the Email Server
 
-Once the email server is properly configured, you can add an address:
-On the Admin tab, under the System Configuration section, choose System Settings
-Change the Alert Email From Address to the desired email address you wish to use
+Navigate to:
+
+- **Admin**
+- **Email Server Management**
+
+Select **Add** and configure the following settings:
+
+- **Hostname:** Enter the fully qualified domain name (FQDN) of the SMTP server.
+  - QRadar requires a hostname and does not accept an IP address.
+- **Port:** `25`
+  - Your environment may use a different SMTP port (for example, `587` or `465`).
+- **Description:** Enter a meaningful description for the server.
+- **Username / Password:** Leave blank unless SMTP authentication is required.
+- **TLS:** Enable if supported or required by your mail server.
+
+Select **Save** to create the email server.
+
+## Assign the Email Server to a Host
+
+After creating the email server, assign it to the appropriate managed host.
+
+Navigate to:
+
+- **Admin**
+- **System and License Management**
+
+Select the desired Console or managed host.
+
+From the **Display** list, ensure **Systems** is selected.
+
+Choose:
+
+- **Actions**
+- **View and Manage System**
+
+Open the **Email Server** tab.
+
+Select **Test Connection** to verify connectivity.
+
+> **Note:** If the connection test fails, verify that any required firewall rules allow the QRadar host to communicate with the SMTP server.
+
+If the test succeeds, select **Save**.
+
+## Configure the Sender Address
+
+Configure the email address that QRadar uses as the sender for outbound messages.
+
+Navigate to:
+
+- **Admin**
+- **System Settings**
+
+Set **Alert Email From Address** to the desired sender email address.
+
+Save the configuration.
+
+## Verification
+
+Verify the configuration by:
+
+- Successfully completing the **Test Connection**.
+- Triggering a test notification or report.
+- Confirming that the email is delivered from the configured sender address.
+
+## Additional Resources
+
+- IBM Documentation:
+  https://www.ibm.com/docs/en/qradar-on-cloud?topic=hosts-adding-email-server
