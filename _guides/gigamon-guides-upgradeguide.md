@@ -6,72 +6,106 @@ description: "Upgrade Gigamon Fabric Manager and GigaVUE appliances to a newer s
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/Guides/UpgradeGuide.md"
 ---
 
-<h1>Introduction</h1>
-<p>Quick little guide to help you get around having to run the fetch commands for the image files. Guide assumes that you have downloaded the images files 
-on your workstation and have them readily available to use.</p>
-<h3>NOTE: WinSCP or similar must be installed on your workstation.</h3>
+## Introduction
 
-<h2>Fabric Manager</h2>
-<p>I won't lie, I felt like an idiot looking at the documentation thinking I had to run the fmctl commands to fetch the image from an external server 
-only to realize I was blind and completely missed that the FM is considered its own "Internal Server" and you can upload .img files directly to it. For 
-reference, here is a similar upgrade guide you can skim through</p>
-<ul>
-  <li>https://docs.gigamon.com/pdf-68/Content/Resources/PDF%20Library/GV-6800-Doc/GigaVUE-FM-InstallUpgradeGuide-v68.pdf</li>
-</ul>
+Gigamon software can be upgraded using image files stored locally rather than downloading them directly from an external image server. This approach is useful in environments without internet connectivity or where software images are distributed through an internal software repository.
 
-<h3>Upload Image</h3>
-<p>Upgrading the FM is pretty simple and straightforward and can all be done from the GUI. Once you're logged into the FM, navigate to</p>
-<pre><code>
-  Settings Cog > System > Images > Internal Image Files > Upload
-  
-</code></pre>
-<p>Upload your FM .img file here (this is also where you upload .img files for your nodes if they are connected to your FM). Once it's finished uploading, 
-you're ready to start the upgrade.</p>
+This guide explains how to upgrade both Gigamon Fabric Manager and standalone GigaVUE appliances using locally staged image files.
 
-<h3>Upgrade</h3>
-<p>From anywhere on the FM, select the profile icon on the top right of the GUI and select "Upgrade". From the next interface, do the following</p>
-<ul>
-  <li>Select Image Server Type - Internal Image Server</li>
-  <li>Select Version - FM .img file</li>
-  <li>Start Upgrade - Click the Start Upgrade button</li>
-</ul>
-<p>The FM will start to do its thing. Leave the page open and don't refresh. When the upgrade is complete, the page will tell you the device is finished 
-and prompt you to go to the dashboard.</p>
+## Prerequisites
 
-<h2>Nodes</h2>
-<p>In the event that your device can't be connected to your Fabric Manager for some reason, there's a way to use the CLI to update it to the latest versions 
-without using the fetch commands. You won't find the hidden file in the official documentation, but for the rest of the guide you can have this for reference</p>
-<ul>
-  <li>https://docs.gigamon.com/pdfs/Content/Resources/PDF%20Library/GV-6300-Doc/GigaVUE-OS-UpgradeGuide-v63.pdf</li>
-</ul>
+Before beginning the upgrade:
 
-<h3>WinSCP</h3>
-<p>Begin by authentication to the device with WinSCP (or whatever program you use for transfering files). On the Gigamon side, 
-either click the folder button labeled "Open directory/bookmark" or use the shortcut</p>
-<pre><code>
-  Ctrl + O
-  
-</code></pre>
-<p>This will allow you to directly navigate to the folder you need to drop the .img file into. You do it this way because the default account doesn't have 
-the proper permissions to access the /var folder. The directory you need to enter is</p>
-<pre><code>
-  /var/opt/tms/images
-  
-</code></pre>
-<p>You <i>shouldn't</i> have any other image files in here, but in the event that you do you can delete them from the WinSCP pane. Place your new Gigamon 
-.img file in here.</p>
+- Download the appropriate `.img` files from Gigamon.
+- Ensure the image files are accessible from your workstation.
+- Install a file transfer utility such as WinSCP or an equivalent SCP/SFTP client.
 
-<h3>CLI</h3>
-<p>Once the file is staged in the images folder, from the CLI you can follow the normal guide for upgrading the device. For my fellow lazy people out there, 
-the order of commands are as follows</p>
-<pre><code>
-  image install gigamon.img
-  image boot next
-  write mem
-  reload
-</code></pre>
-<p>This will install the image, designate which image to use during the next reboot, write the config to memory, and reboot (reload) the device. If this is a 
-brand new device, the reboot is pretty quick since there aren't any crazy configurations on it.</p>
+## Upgrade Gigamon Fabric Manager
 
-<h2>Cake</h2>
-<p>Easy peasy lemon squeezy.</p>
+### Upload the Image
+
+Log in to the Fabric Manager web interface.
+
+Navigate to:
+
+- **Settings**
+- **System**
+- **Images**
+- **Internal Image Files**
+- **Upload**
+
+Upload the desired Fabric Manager image.
+
+> **Note:** The Internal Image Server can also be used to store images for managed Gigamon nodes.
+
+### Start the Upgrade
+
+Select the profile icon in the upper-right corner of the Fabric Manager interface, then choose:
+
+- **Upgrade**
+
+Configure the following settings:
+
+- **Image Server Type:** Internal Image Server
+- **Version:** Select the uploaded image
+- **Start Upgrade**
+
+Allow the upgrade to complete without refreshing or closing the browser window.
+
+When the upgrade finishes, Fabric Manager will prompt you to return to the dashboard.
+
+## Upgrade Standalone Gigamon Nodes
+
+If a node is not managed by Fabric Manager, the software image can be staged manually.
+
+### Upload the Image
+
+Using WinSCP or another SCP/SFTP client, connect to the node.
+
+Open the following directory:
+
+```text
+/var/opt/tms/images
+```
+
+Upload the desired `.img` file.
+
+> **Note:** Remove any obsolete image files before uploading the new image to avoid confusion during the upgrade process.
+
+### Install the Image
+
+Connect to the node CLI.
+
+Run the following commands:
+
+```bash
+image install gigamon.img
+
+image boot next
+
+write memory
+
+reload
+```
+
+These commands perform the following actions:
+
+- Install the software image.
+- Configure the new image as the next boot image.
+- Save the running configuration.
+- Reboot the appliance.
+
+## Verification
+
+After the appliance restarts:
+
+- Verify the expected software version is running.
+- Confirm the appliance returns to a healthy operational state.
+- Verify management connectivity through the CLI and web interface.
+- If the appliance is managed by Fabric Manager, confirm it reconnects successfully.
+
+## Additional Resources
+
+- [Gigamon Fabric Manager Installation and Upgrade Guide (v6.8)](https://docs.gigamon.com/pdf-68/Content/Resources/PDF%20Library/GV-6800-Doc/GigaVUE-FM-InstallUpgradeGuide-v68.pdf)
+
+- [Gigamon GigaVUE OS Upgrade Guide (v6.3)](https://docs.gigamon.com/pdfs/Content/Resources/PDF%20Library/GV-6300-Doc/GigaVUE-OS-UpgradeGuide-v63.pdf)
