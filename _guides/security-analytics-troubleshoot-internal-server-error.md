@@ -1,74 +1,120 @@
 ---
-title: "Internal Server Error"
+title: "Troubleshooting Internal Server Error Caused by Storage Layout"
 project: "Security Analytics"
 category: "Troubleshooting"
-description: "A practical troubleshooting for Security Analytics."
+description: "Resolve recurring Internal Server Error conditions caused by an incorrect storage layout on Broadcom Security Analytics."
 source_url: "https://github.com/PudgyDragon/Security_Analytics/blob/main/Troubleshoot/Internal_Server_Error.md"
 ---
 
-# Troubleshooting Internal Server Error
-After a while, spikes of traffic would cause the `/var` partition to go above the 80% threshold and fill up to 100%, causing an
-Internal Server Error. There are several guides that may help you fix this issue, but none of them were ones that helped us
-to not get this error again. Here are some of the articles found:
+## Introduction
 
-Error "Internal Server Error" on Security Analytics (Solera) login page or from the widgets on the summary page
-- https://knowledge.broadcom.com/external/article/168502/error-internal-server-error-on-security.html
+One of the more frustrating issues I encountered while deploying Security Analytics on custom hardware was a recurring **Internal Server Error** within the web interface.
 
-/var is full due to large audit.log files
-- https://knowledge.broadcom.com/external/article?articleId=168496
+Initially, the appliance functioned normally. However, periods of increased traffic would eventually cause the `/var` filesystem to exceed **80% utilization** before ultimately filling to **100%**, at which point the web interface would begin returning **Internal Server Error** messages.
 
-/var partition is filling up or is 100% utilized
-- https://knowledge.broadcom.com/external/article/168963/var-partition-is-filling-up-or-is-100-ut.html
+Broadcom has published several Knowledge Base articles covering common causes of this problem.
 
+- Error "Internal Server Error" on Security Analytics login page or Summary widgets
+  - https://knowledge.broadcom.com/external/article/168502/error-internal-server-error-on-security.html
 
-After troubleshooting and comparing the device to devices that were provided by SSA themselves, I realized that when
-the install was done, certain partitions and volume groups weren't created. This is a guide for creating the correct
-partitions and volume groups for SSA on your own physical hardware. Please note, you will probably have different
-hardware sizes than us, and you will need to adjust accordingly.
+- `/var` is full due to large `audit.log` files
+  - https://knowledge.broadcom.com/external/article/168496
 
-Determine what partitions you currently have, and what are missing:
-```
+- `/var` partition is filling up or is 100% utilized
+  - https://knowledge.broadcom.com/external/article/168963/var-partition-is-filling-up-or-is-100-ut.html
+
+While those articles are useful, none of them resolved the issue in our environment.
+
+After comparing our appliance against factory-built Security Analytics hardware provided by Broadcom, we discovered that the storage layout created during installation was missing several expected partitions and logical volumes.
+
+This guide documents how we corrected the storage layout and eliminated the recurring Internal Server Error.
+
+> **Warning**
+>
+> This procedure is destructive. It removes partitions, volume groups, and logical volumes from the storage device being modified. Ensure all required data has been backed up before proceeding.
+
+> **Important**
+>
+> The partition sizes shown throughout this guide reflect the hardware used in our deployment. Adjust all sizes to match your own storage capacity and retention requirements.
+
+## Symptoms
+
+You may observe one or more of the following:
+
+- Internal Server Error within the web interface
+- `/var` repeatedly reaches 100% utilization
+- Metadata storage grows unexpectedly
+- Packet capture continues while the GUI becomes unstable
+- System health degrades during traffic spikes
+
+## Step 1 – Verify the Existing Storage Layout
+
+Begin by reviewing the current storage configuration.
+
+```bash
 lsblk
 ```
-Your partitions should look similar to this:
-```
-Name----------------------------Size---------Type----------Mountpoint
-sda-----------------------------x------------disk
----sda1-------------------------x------------part
----sda2-------------------------x------------part----------/boot
----sda3-------------------------x------------part----------/var
----sda4-------------------------x------------part
----sda5-------------------------x------------part----------/
----sda6-------------------------x------------part----------/ds
----sda7-------------------------x------------part----------/gui
----sda8-------------------------x------------part----------/home
-sdb-----------------------------x------------disk
----indexVG-indexLV--------------x------------lvm-----------/var/lib/solera/meta
-sdc-----------------------------x------------disk
----captureVG-captureLV----------x------------lvm-----------/pfs
-```
-If your partitions don't look somewhat similar to this, you may need to follow this guide. Our device only has sda and sdb,
-so take that into account when following this guide. If you have sdc as well, you should be able to modify the guide
-for your needs fairly easy.
 
-At the beginning, our sdb only had `captureVG` and was missing `indexVG`, so we needed to create partitions to allow
-both `captureVG` and `indexVG` to exist on sdb.
+A typical appliance should resemble the following layout.
 
-First, you need to delete all partitions on storage device you are working on (sdb for the purpose of this guide):
+```text
+sda
+├── /boot
+├── /var
+├── /
+├── /ds
+├── /gui
+└── /home
+
+sdb
+└── indexVG/indexLV
+    └── /var/lib/solera/meta
+
+sdc
+└── captureVG/captureLV
+    └── /pfs
 ```
+
+Your hardware may differ, but separate logical volumes for metadata and packet storage should exist.
+
+In our environment, only `captureVG` existed. The metadata volume (`indexVG`) had never been created.
+
+## Step 2 – Remove the Existing Storage Configuration
+
+Delete the existing partitions from the storage device.
+
+Example:
+
+```bash
 fdisk /dev/sdb
-d (delete)
-w (write)
 ```
-Check for any volume groups and remove them:
+
+Delete each partition before writing the changes.
+
 ```
+d
+w
+```
+
+Remove any existing volume groups.
+
+```bash
 vgdisplay
 vgremove indexVG
 vgremove captureVG
 ```
-When creating partitions, it wasn't allowing for a larger than 2T size. This is how I changed that:
-```
+
+## Step 3 – Initialize the Disk
+
+Large storage devices may require GPT before partitions larger than 2 TB can be created.
+
+```bash
 parted /dev/sdb
+```
+
+Example:
+
+```text
 mklabel gpt
 yes
 unit TB
@@ -76,85 +122,139 @@ mkpart primary 0 0
 print
 quit
 ```
-Create two new partitions in sdb:
-```
+
+## Step 4 – Create the Partitions
+
+Recreate the storage layout.
+
+```bash
 fdisk /dev/sdb
-n (new)
-Leave all defaults except for the second prompt for partition size, which will be:
-+4T (this is the size we used)
-t (type)
-8e
-(sdb1 is created)
-n (new)
-Leave all defaults except for the second prompt for partition size, which will be:
-+36T (this is the size we used)
-t (type)
-8e
-(sdb2 is created)
-w (write)
 ```
-Now, create two new volume groups:
-```
+
+Create two Linux LVM partitions.
+
+Example sizes used in our deployment:
+
+| Partition | Purpose | Size |
+|-----------|---------|------:|
+| sdb1 | Metadata | 4 TB |
+| sdb2 | Packet Capture | 36 TB |
+
+Adjust these values to match your environment.
+
+## Step 5 – Create Volume Groups
+
+Create separate volume groups.
+
+```bash
 vgcreate indexVG /dev/sdb1
 vgcreate captureVG /dev/sdb2
-vgdisplay (to make sure they were created)
 ```
-Create two new logical volumes
+
+Verify the volume groups.
+
+```bash
+vgdisplay
 ```
+
+## Step 6 – Create Logical Volumes
+
+Create the logical volumes.
+
+```bash
 lvcreate -L 3.9T -n indexLV indexVG
 lvcreate -L 36T -n captureLV captureVG
 ```
-Make two new directories
-```
-mkdir /captureVG
-mkdir /indexVG
-```
-Run the following commands to map and mount the logical volumes
-```
+
+Again, adjust the sizes as appropriate for your hardware.
+
+## Step 7 – Format and Mount the Volumes
+
+Format each logical volume.
+
+```bash
 mkfs.xfs /dev/mapper/indexVG-indexLV
 mkfs.xfs /dev/mapper/captureVG-captureLV
+```
+
+Mount the filesystems.
+
+```bash
 mount /dev/mapper/indexVG-indexLV /var/lib/solera/meta
 mount /dev/mapper/captureVG-captureLV /pfs
 ```
-Edit the `/etc/fstab` file to make sure you have all the components. Compared to our original box,
-this install was missing these ones:
-```
-tmpfs-------------------------/dev/shm------------------tmpfs-----defaults----------------------------------------------------------------------------0-0
-devpts------------------------/dev/pts------------------devpts----defaults----------------------------------------------------------------------------0-0
-sysfs-------------------------/sys----------------------sysfs-----defaults----------------------------------------------------------------------------0-0
-proc--------------------------/proc---------------------proc------defaults----------------------------------------------------------------------------0-0
-/dev/captureVG/captureLV------/pfs----------------------xfs-------defaults,noatime,nodiratime,nobarrier,noauto,nosuid,nodev,allocsize=64m,nofail------0-0
-/dev/indexVG/indexLV----------/var/lib/solera/meta------xfs-------defaults,noatime,nodiratime,nobarrier,noauto,nosuid,nodev,allocsize=8m,nofail-------0-0
 
-:wq! (save and quit)
+## Step 8 – Update `/etc/fstab`
+
+Verify the required mount entries exist.
+
+At minimum, ensure entries similar to the following are present.
+
+```text
+/dev/captureVG/captureLV    /pfs                  xfs   defaults,noatime,nodiratime,nobarrier,noauto,nosuid,nodev,allocsize=64m,nofail
+/dev/indexVG/indexLV        /var/lib/solera/meta xfs   defaults,noatime,nodiratime,nobarrier,noauto,nosuid,nodev,allocsize=8m,nofail
 ```
-Run the mount command, and reboot the system to finish your changes:
-```
+
+If these entries are missing, add them before rebooting.
+
+## Step 9 – Mount and Reboot
+
+Mount all configured filesystems.
+
+```bash
 mount
+```
+
+Reboot the appliance.
+
+```bash
 reboot
 ```
-After reboot, check that your partitions and volume groups are persisting:
-```
+
+## Verification
+
+After the appliance starts:
+
+Verify the storage layout.
+
+```bash
 lsblk
-vgdisplay
-```
-Please note, after the reboot our sda and sdb switched names. If your system is similar to ours, the partitions should come out similar to this:
-```
-Name----------------------------------Size------------Type----------------Mountpoint
-sda-----------------------------------x---------------disk
----sda1-------------------------------x---------------part
-------indexVG-indexLV-----------------x---------------lvm-----------------/var/lib/solera/meta
----sda2-------------------------------x---------------part
-------captureVG-captureLV-------------x---------------lvm-----------------/pfs
-sdb-----------------------------------x---------------disk
----sdb1-------------------------------x---------------part
----sdb2-------------------------------x---------------part----------------/boot
----sdb3-------------------------------x---------------part----------------/var
----sdb4-------------------------------x---------------part
----sdb5-------------------------------x---------------part----------------/
----sdb6-------------------------------x---------------part----------------/ds
----sdb7-------------------------------x---------------part----------------/gui
----sdb8-------------------------------x---------------part----------------/home
 ```
 
-I hope this guide helps you.
+Verify the volume groups.
+
+```bash
+vgdisplay
+```
+
+In our environment, the operating system reassigned disk names after the reboot.
+
+For example:
+
+- Original `sdb` became `sda`
+- Original `sda` became `sdb`
+
+This is expected on some hardware platforms.
+
+Confirm:
+
+- `/pfs` is mounted.
+- `/var/lib/solera/meta` is mounted.
+- Packet capture resumes normally.
+- Metadata generation resumes normally.
+- `/var` no longer grows uncontrollably during periods of heavy traffic.
+
+## Troubleshooting
+
+If `/var` continues to fill:
+
+- Verify `indexVG` exists.
+- Verify `/var/lib/solera/meta` is mounted.
+- Confirm metadata is not being written to the root filesystem.
+- Compare your storage layout against a known-good appliance.
+
+If `lsblk` does not resemble a factory appliance, additional storage configuration may still be required.
+
+> **Field Note**
+>
+> This issue took considerably longer to diagnose than it should have because the symptoms suggested an application problem rather than a storage configuration issue. Only after comparing our appliance against Broadcom-provided hardware did we discover that the installation had never created the expected metadata volume. Once the storage layout matched the factory appliances, the recurring Internal Server Errors disappeared—even during traffic spikes that had previously filled `/var` to 100%.
