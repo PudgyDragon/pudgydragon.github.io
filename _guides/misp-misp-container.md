@@ -6,100 +6,173 @@ description: "Deploy the Malware Information Sharing Platform (MISP) using Docke
 source_url: "https://github.com/PudgyDragon/MISP/blob/main/MISP_Container.md"
 ---
 
-# Introduction
-### Updates coming soon
+## Introduction
 
-This is a guide for installing MISP on Docker. It assumes that you already have Docker installed. Some of the specs of the environment include:
+The official MISP Docker deployment is straightforward in environments with unrestricted internet access. Enterprise environments, however, often require additional configuration for HTTP/HTTPS proxies.
 
-- Behind a Proxy
-- RHEL
-- Repurposed Dell Server
+This guide documents the additional steps required to successfully build and deploy the Harvard IT Security Docker image for MISP in a proxied environment.
 
-The guide repository we used for our MISP install was:
+The deployment documented in this guide was performed on:
+
+- Red Hat Enterprise Linux (RHEL)
+- Docker
+- Enterprise HTTP/HTTPS proxy
+- Repurposed Dell server
+
+## Prerequisites
+
+This guide assumes:
+
+- Docker is already installed and operational.
+- Internet access is available through an HTTP/HTTPS proxy.
+- Git is installed.
+
+## Clone the Repository
+
+The official MISP Docker project can be found at:
+
 - https://github.com/MISP/docker-misp
 
-The repository we cloned is:
-- https://github.com/harvard-itsecurity/docker-misp.git
+This deployment uses the Harvard IT Security implementation:
 
-If you're not sitting behind a proxy, the installation guide from the docker-misp repository is pretty straight forward and you don't need to continue reading this guide.
+- https://github.com/harvard-itsecurity/docker-misp
 
-To clone the repository, navigate to the home directory if you're not already there using:
-```
+Clone the repository using your proxy configuration.
+
+```bash
 cd ~
+
+git clone https://github.com/harvard-itsecurity/docker-misp.git \
+  --config "http.proxy=http://<proxyHost>:<proxyPort>"
 ```
-Use the following syntax to clone with your proxy:
-```
-git clone https://github.com/harvard-itsecurity/docker-misp.git --config "http.proxy=http://<proxyHost>:<proxyPort>"
-```
-## Modify build.sh
-Once it's been cloned, modify the build.sh file with the recommended changes
-```
+
+## Configure the Build Script
+
+Navigate to the repository.
+
+```bash
 cd docker-misp
+```
+
+Edit the build script.
+
+```bash
 vi build.sh
-# Change all passwords (MYSQL, GPG)
-# Change at LEAST "MISP_FQDN" to your FQDN (domain)
 ```
-## Add Proxy to Dockerfile
-Once that's done, you will need to add your proxy to the Dockerfile
-```
-cd /docker-misp/container
+
+Update the appropriate values for your environment, including:
+
+- MySQL password
+- GPG password
+- `MISP_FQDN`
+
+## Configure Docker Proxy Settings
+
+Open the Dockerfile.
+
+```bash
+cd container
+
 vi Dockerfile
 ```
-Under the following line:
-```
+
+Locate:
+
+```Dockerfile
 ENV DEBIAN_PRIORITY critical
 ```
-Add the following:
-```
+
+Immediately below it, add:
+
+```Dockerfile
 ENV HTTP_PROXY="http://<proxyHost>:<proxyPort>"
-ENV HTTPS_PROXY="https://<proxyHost>:<proxyPort>"
+ENV HTTPS_PROXY="http://<proxyHost>:<proxyPort>"
 ```
-During our installation, we discovered that PIP/PIP3 doesn't like doing things behind a proxy unless specified either in a PIP config or in the commands used. We also discovered that we needed to ensure that the proxy stayed persistent after each use of `sudo`. To do both of these things, the following command was used:
+
+## Preserve Proxy Variables During Build
+
+Some installation steps execute with `sudo`. During testing, it was necessary to preserve the proxy environment variables for these commands.
+
+Run:
+
+```bash
+sed -i 's/sudo /sudo --preserve-env=HTTP_PROXY,HTTPS_PROXY,http_proxy,https_proxy /g' Dockerfile
 ```
-sed -i 's/sudo /sudo --preserve-env=HTTP_PROXY,HTTPS_PROXY,http_proxy,https_proxy /g' /docker-misp/container/Dockerfile
-```
-This will replace all instances of `sudo` in the Dockerfile to preserve the proxy environment. There is one instance of `sudo` that will need to remain the same. You will find it in the following lines:
-```
-ENV DEBIAN_PRIORITY critical
+
+One occurrence of `sudo` should **not** include the `--preserve-env` option.
+
+Locate:
+
+```Dockerfile
 RUN apt-get update && apt-get install -y supervisor ... sudo ...
 ```
-In that one instance, delete the `--preserve-env=HTTP_PROXY,HTTPS_PROXY,http_proxy,https_proxy` and leave the remaining, saving the file with `:wq!`.
 
-## Run the build
-Make sure you're in the right directory and run the the build script:
+Remove the added `--preserve-env` option from this line only.
+
+> **Note:** This change was required during testing to allow package installation to complete successfully behind an enterprise proxy.
+
+## Build the Image
+
+Return to the project directory.
+
+```bash
+cd ..
 ```
-cd /docker-misp
+
+Start the build.
+
+```bash
 ./build.sh
 ```
-This will take a while, and many of the steps may seem like they hang for a while. Don't be discouraged unless you receive an error that exits the build.
-## Finishing up
-If you got through the build process, you can finish up with the rest of the guide that was provided. If you're lazy like I am at times, I've also provided the rest below:
-```
-# Make a DB directory
+
+> **Note:** Building the container may take several minutes. Some build steps may appear inactive while packages are downloading or compiling.
+
+## Initialize the Database
+
+Create the database directory.
+
+```bash
 mkdir -p /docker/misp-db
+```
 
-# Initialize the DB
-docker run -it --rm \
+Initialize the database.
+
+```bash
+docker run --rm \
     -v /docker/misp-db:/var/lib/mysql \
-    harvarditsecurity/misp /init-db
+    harvarditsecurity/misp \
+    /init-db
+```
 
-# Start the Container
-docker run -it -d \
-    -p 443:443 \
+## Start MISP
+
+```bash
+docker run -d \
     -p 80:80 \
+    -p 443:443 \
     -p 3306:3306 \
     -p 6666:6666 \
     -v /docker/misp-db:/var/lib/mysql \
     harvarditsecurity/misp
+```
 
-# Access Web URL
-Navigate to the MISP_FQDN you defined
-Login: admin@admin.test
-Password: admin
-```
-## Extra
-If you're like my team, it's likely you have other containers you're wanting to run with MISP (like OpenCTI). The guide we followed doesn't tell you how to keep the build persistent in the event you need to restart docker. To do so, you will need to edit an existing `docker-compose.yml` file. The location may vary; `cd` to the location and run `vi docker-compose.yml`. To ensure the build will run with docker compose, add the following information to the `services:` section of the file:
-```
+Browse to the configured `MISP_FQDN`.
+
+Default credentials:
+
+| Username | Password |
+|-----------|----------|
+| admin@admin.test | admin |
+
+> **Important:** Change the default administrator password immediately after logging in.
+
+## Configure Docker Compose
+
+If MISP will be managed alongside other containers (such as OpenCTI), adding it to an existing Docker Compose deployment simplifies lifecycle management.
+
+Example service definition:
+
+```yaml
 misp:
   image: harvarditsecurity/misp
   ports:
@@ -111,21 +184,44 @@ misp:
     - /docker/misp-db:/var/lib/mysql
   restart: always
 ```
-Before it will work properly (running `docker-compose` may create a second instance) you will need to stop the current docker container of MISP. You can find if MISP is currently running using:
-```
+
+If the standalone container is already running, stop it before starting Docker Compose.
+
+List running containers.
+
+```bash
 docker ps
 ```
-If you see the MISP container `UP`, you will need to run:
+
+Stop the MISP container.
+
+```bash
+docker stop <container-id>
 ```
-docker stop <containerID>
-```
-From the directory your `docker-compose.yml` file is in, run:
-```
+
+Start the Compose stack.
+
+```bash
 docker-compose up -d
 ```
-Your MISP container is now part of the docker-compose.yml along with your other containers, and they are all able to be controlled with `docker-compose` together.
 
-## Issues?
-If you're still having issues with docker-misp through your proxy, there may be a few other places you need to add proxy settings. I will add those soon.
+## Verification
 
-(more configs coming soon)
+Verify the deployment by confirming:
+
+- The MISP login page loads successfully.
+- Authentication succeeds using the administrator account.
+- Docker reports the container as healthy.
+- The database volume persists across container restarts.
+- HTTPS is functioning as expected (if configured).
+
+## Known Issues
+
+Additional proxy configuration may be required depending on the environment. Some package managers and utilities may require proxy settings to be configured independently.
+
+This section will be updated as additional proxy-related configurations are identified.
+
+## Additional Resources
+
+- https://github.com/MISP/docker-misp
+- https://github.com/harvard-itsecurity/docker-misp
