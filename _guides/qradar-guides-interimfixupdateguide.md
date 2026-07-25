@@ -1,36 +1,97 @@
 ---
-title: "Interimfixupdateguide"
+title: "Install an IBM QRadar Interim Fix"
 project: "QRadar"
 category: "Engineering Guide"
-description: "A practical engineering guide for QRadar."
+description: "Install an IBM QRadar Interim Fix (IF) by mounting the update package, applying the installer, and verifying the installed version across all managed hosts."
 source_url: "https://github.com/PudgyDragon/QRadar/blob/main/Guides/InterimFixUpdateGuide.md"
 ---
 
-# General Interim Fix Update Guide
-Getting lazy and don't want to keep finding the guide for Interim Fixes when they come out so just doing a general one here. Skipping a few steps.
+## Introduction
 
-## Procedure
-1. Download the software from IBM Fix Central
-2. SSH into your Console as root
-3. Create /media/updates directory if you don't have one
-   - `mkdir -p /media/updates`
-4. SCP the SFS file to `/storetmp`
-5. Change directory to /storetmp
-   - `cd /storetmp`
-6. Mount the patch file
-   - `mount -o loop -t squashfs /storetmp/<sfs_file> /media/updates`
-7. Run patch installer
-   - `/media/updates/installer`
-8. Using the patch installer, select `all`
+IBM periodically releases Interim Fixes (IFs) to address product defects, security issues, and stability improvements between scheduled maintenance releases.
 
-## Wrap-up
-1. After the patch is complete, unmount using:
-   - `umount /media/updates`
-2. Clear browser cache
-3. Delete SFS file from all appliances
+This guide describes how to install an Interim Fix on a QRadar deployment, perform post-installation cleanup, and verify that the update was successfully applied across all managed hosts.
 
-## Verify Fix Number
-You can run the following command to verify that all servers have been brought up to the Interim Fix you have applied:
-```
+## Prerequisites
+
+Before installing an Interim Fix:
+
+- Download the appropriate `.sfs` update package from IBM Fix Central.
+- Ensure the update is compatible with your QRadar version.
+- Verify sufficient free space is available in `/storetmp`.
+- Schedule an appropriate maintenance window, as services may restart during the installation.
+
+## Install the Interim Fix
+
+1. Download the Interim Fix package from **IBM Fix Central**.
+
+2. Connect to the QRadar Console using SSH as `root`.
+
+3. Create the update mount directory if it does not already exist.
+
+    ```bash
+    mkdir -p /media/updates
+    ```
+
+4. Copy the `.sfs` update package to the Console.
+
+    Example destination:
+
+    ```text
+    /storetmp
+    ```
+
+5. Change to the working directory.
+
+    ```bash
+    cd /storetmp
+    ```
+
+6. Mount the update package.
+
+    ```bash
+    mount -o loop -t squashfs /storetmp/<interim_fix>.sfs /media/updates
+    ```
+
+7. Launch the installer.
+
+    ```bash
+    /media/updates/installer
+    ```
+
+8. When prompted, select:
+
+    ```text
+    all
+    ```
+
+    This applies the Interim Fix to all eligible managed hosts.
+
+## Post-Installation Cleanup
+
+After the installation completes successfully:
+
+1. Unmount the update package.
+
+    ```bash
+    umount /media/updates
+    ```
+
+2. Clear your web browser cache before logging back into the QRadar user interface.
+
+3. Remove the `.sfs` package from the Console and any managed hosts where it was copied.
+
+## Verify the Installation
+
+Run the following command from the Console to verify the Interim Fix level on all managed hosts.
+
+```bash
 /opt/qradar/support/all_servers.sh -C "/opt/qradar/bin/myver -v | grep Interim"
 ```
+
+Verify that each appliance reports the expected Interim Fix version.
+
+## Additional Resources
+
+- IBM QRadar Fix Central
+- IBM QRadar Software Installation and Upgrade Documentation
