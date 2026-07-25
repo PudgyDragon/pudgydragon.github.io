@@ -122,8 +122,11 @@ button, input, select { font: inherit; }
 }
 .hero-background {
   display: block;
-  width: 100%;
+  width: 100vw;
+  min-width: 100%;
+  max-width: none;
   height: auto;
+  object-fit: contain;
 }
 .hero-shade {
   position: absolute;
@@ -343,7 +346,7 @@ button, input, select { font: inherit; }
   .github { margin-top: 10px; text-align: center; }
 
   .hero { overflow: visible; }
-  .hero-background { width: 100%; height: auto; }
+  .hero-background { width: 100vw; min-width: 100%; max-width: none; height: auto; }
   .hero-shade {
     background: linear-gradient(180deg, rgba(5,16,31,.04) 25%, rgba(5,16,31,.42) 72%, #05101f 100%);
   }
