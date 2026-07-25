@@ -1,12 +1,12 @@
 ---
-title: "Commands"
+title: "Gigamon Command Reference"
 project: "Gigamon"
 category: "Engineering Guide"
-description: "A practical engineering guide for Gigamon."
+description: "Reference commonly used CLI commands for administering and troubleshooting Gigamon appliances."
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/MISC/commands.md"
 ---
 
-# Helpful Commands
+# Introduction
 Just a reference for some helpful commands for certain Gigamon releases.
 
 ## Port Filter
