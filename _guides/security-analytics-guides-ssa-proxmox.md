@@ -1,72 +1,222 @@
 ---
-title: "Ssa Proxmox"
+title: "Installing Security Analytics on Proxmox"
 project: "Security Analytics"
 category: "Engineering Guide"
-description: "A practical engineering guide for Security Analytics."
+description: "Installing Broadcom Security Analytics as a virtual machine on Proxmox."
 source_url: "https://github.com/PudgyDragon/Security_Analytics/blob/main/Guides/SSA_Proxmox.md"
 ---
 
-# * * * Updates coming * * *
+## Introduction
 
-# SSA On Proxmox Guide
-I wanted to test a few things with SSA and see if it was possible to get it running on Proxmox. 
+This guide documents the process I used to successfully install **Broadcom Security Analytics (SSA)** as a virtual machine on **Proxmox VE**.
 
-## Before Starting
-Before doing so, you'll need to create Proxmox storage that is type LVM, with content Disk Image, Container. You will be using the Proxmos host to create the installation media. 
+The primary goal of this project was to build a functional lab environment for testing, experimentation, and learning without requiring dedicated physical hardware. While Broadcom does not officially support this deployment method, it can be useful for evaluation, proof-of-concept work, and developing familiarity with the platform.
 
-## Preparing the Proxmox Host
-I was having issues at first because it kept saying I had a volume group on the storage I wanted to use, so (using your storage name in place) run the following:
+> **Important**
+>
+> This guide reflects the versions of Security Analytics and Proxmox that were available when it was originally written. Both products have changed significantly since then, and portions of this guide may no longer apply to current releases.
+
+> **Note**
+>
+> This guide has been on my list to revisit for quite some time. I would like to update and validate it against newer versions of Security Analytics and Proxmox, but I honestly don't know when—or if—I'll have the opportunity to do so. Until then, consider this guide a snapshot of what worked in my lab rather than a guaranteed installation procedure for current releases.
+
+> **Warning**
+>
+> Installing Security Analytics on Proxmox is an unsupported configuration. Expect to perform additional troubleshooting beyond what would normally be required on supported hardware.
+
+## Prerequisites
+
+Before beginning:
+
+- Proxmox VE installed and operational
+- Broadcom Security Analytics installation media
+- A dedicated storage device or LVM storage pool for installation media
+- Root access to the Proxmox host
+- Basic familiarity with Proxmox virtual machine management
+
+## Step 1 – Prepare Proxmox Storage
+
+Create an LVM storage target within Proxmox.
+
+The storage should support:
+
+- Disk Images
+- Containers
+
+This storage will temporarily be used to hold the Security Analytics installation media.
+
+## Step 2 – Prepare the Proxmox Host
+
+When preparing storage, an existing volume group may prevent the installation media from being created.
+
+Display existing volume groups.
+
+```bash
+vgs
 ```
-vgs # Find the volume group to delete (mine was captureVG)
+
+If an existing capture volume group is present, remove it.
+
+```bash
 vgremove captureVG
-wipefs --all --backup /dev/sda # Replace sda with whatever drive you're using
-apt-get install parted # Install parted
-apt-get install udev # Install udev
-cp /bin/udevadm /sbin/udevadm # udevadm wasn't in the right location for me
 ```
-From here, follow the SSA installation guide on my other repo to create the installation media for SSA, replacing the USB with the Proxmox storage node you created just for this. This will create the installation media on your Proxmox storage device. 
 
-## New VM
-Create a new proxmox VM with these settings:
-- BIOS - Default (SeaBIOS)
-- SCSI Controller - VirtIO SCSI
-- Network Device (net0) - virtio=<mac>, bridge=vmbr0
-- Network Device (net1) - virtio=<mac>, bridge=vmbr1
+Remove any remaining filesystem signatures from the target disk.
 
-Don't start the VM yet. Once the installation media is completed, run the following:
+```bash
+wipefs --all --backup /dev/sdX
 ```
-qm set vmid -virtio0 /dev/sda
-# Replace vmid with your VM ID
-```
-This will add the installation media as a drive to your newly created VM. In the Options tab on Proxmox, set the boot option as the `/dev/sda` (or whatever your drive is that has SSA installed). When the installation is complete, head to the next step.
 
-## Login Issues
-For some reason, I wasn't able to login as the default user with the default credentials and kept getting "Authentication Error" even though they were typed correctly. So, to overcome this I had to do some fun stuff with a vulnerability that it appears SSA has. Restart the VM, and watch the screen until it gets to the grub menu where you will need to press `e`. Scroll down the screen until you see the line that has `ro` in it, and replace the line from `ro` to `rw init=/bin/bash`. Then run the command on the screen that allows you to boot the machine (it should be `Ctrl-x`). This will take you straight to a bash terminal as `root`, where you can then run the following:
+Replace `/dev/sdX` with the correct device.
+
+Install required packages.
+
+```bash
+apt-get install parted
+apt-get install udev
 ```
+
+On my installation, `udevadm` was not located where the Broadcom installation script expected it.
+
+Creating a copy resolved the issue.
+
+```bash
+cp /bin/udevadm /sbin/udevadm
+```
+
+> **Field Note**
+>
+> This workaround was required in my lab environment. Depending on your Proxmox version, it may not be necessary.
+
+## Step 3 – Create the Installation Media
+
+Follow the installation media creation procedure described in the **Installing Security Analytics 8.2.6 on Dell Hardware** guide.
+
+Instead of writing the installer to a USB flash drive, write it directly to the dedicated Proxmox storage device.
+
+Once complete, the storage device can be attached directly to the virtual machine.
+
+## Step 4 – Create the Virtual Machine
+
+Create a new virtual machine using the following settings.
+
+| Setting | Value |
+|---------|-------|
+| BIOS | SeaBIOS |
+| SCSI Controller | VirtIO SCSI |
+| Network Adapter 1 | VirtIO (Management) |
+| Network Adapter 2 | VirtIO (Capture) |
+
+Do **not** start the virtual machine yet.
+
+Attach the installation media.
+
+```bash
+qm set <VM_ID> -virtio0 /dev/sdX
+```
+
+Configure the VM to boot from the attached installation disk.
+
+Complete the Security Analytics installation.
+
+## Step 5 – Login Issues
+
+During my initial testing I encountered repeated **Authentication Error** messages when attempting to log in with the default credentials.
+
+My original workaround involved booting into a root shell by modifying the GRUB kernel parameters.
+
+```text
+rw init=/bin/bash
+```
+
+After booting:
+
+```bash
 mount -n -o remount,rw /
 passwd root
-# Change the password for root to whatever you want for now
 ```
-Now you have root access to the device before you're supposed to, and can make necessary changes.
-### Update: Turns out I just didn't have enough storage assigned when installing, which was causing the login issues.
 
-## Setting Configs
-The next thing I had to do was call my good friend Slippy Penguin, because for some reason my ifconfig settings just weren't persisting. As soon as I called him, they magically worked. So if you have a friend like that, best to just have them on standby for good luck. Run the following commands to set your IP configurations:
-```
-sudo ifconfig bond0 <ip_address> netmask <subnet_mask>
-sudo route add default gw <default_gateway_ip>
-sudo ifconfig eth0 <ip_address> netmask <subnet_mask>
-# The configs for bond0 and eth0 should be the exact same.
-```
-## MAC Address
-It's possible that your eth0 and bond0 MAC address aren't aligning properly. I'm not sure if it's an issue with Proxmox or just user error on my part. This was causing the link status for both interfaces to be down, not allowing us to have a web GUI. To fix this, you can replicate your desired MAC address to a couple different places. First make sure the MAC address in your Proxmox hardware settings is the one you want to use. Next, you will have to change the following two files to match:
-```
-vim /etc/sysconfig/network-scripts/ifcfg-eth0
-MACADDR=<Your Mac>
-vim /etc/sysconfig/network-scripts/ifcfg-bond0
-MACADDR=<Your Mac>
-```
-If `HWADDR` exists in either file, replace it with `MACADDR` instead.
+However, additional testing later revealed the actual cause.
 
-## Finishing Up
-That should do it! You should be able to login to your device through the management IP (the bond0 that you set) from your browser. If you're unable to, you may need to make sure you didn't set the Network Device to have a firewall. Luckily, you also now have root access to do any troubleshooting that you couldn't do with the default credentials. Have fun!
+> **Field Note**
+>
+> The login failures were caused by allocating **insufficient virtual disk space** during installation—not by an authentication issue. Once additional storage was allocated, the appliance accepted the default credentials normally. The GRUB recovery procedure is preserved here only because it may still be useful for recovering a lab appliance.
+
+## Step 6 – Configure Networking
+
+Configure the temporary management interface.
+
+```bash
+sudo ifconfig bond0 <IP_ADDRESS> netmask <SUBNET_MASK>
+sudo route add default gw <DEFAULT_GATEWAY>
+```
+
+In my environment, I also configured `eth0` using the same settings.
+
+```bash
+sudo ifconfig eth0 <IP_ADDRESS> netmask <SUBNET_MASK>
+```
+
+> **Field Note**
+>
+> Having a certain friend nearby seemed to magically solve my networking issues. While I can't officially recommend that as a troubleshooting step, every engineer has someone they call when things suddenly start working the moment they arrive.
+
+## Step 7 – Correct the MAC Address
+
+I encountered an issue where the MAC addresses assigned within Proxmox did not match the interface configuration inside Security Analytics.
+
+This prevented the management interface from coming online.
+
+Verify the desired MAC address configured in Proxmox.
+
+Then update:
+
+```text
+/etc/sysconfig/network-scripts/ifcfg-eth0
+```
+
+and
+
+```text
+/etc/sysconfig/network-scripts/ifcfg-bond0
+```
+
+Replace:
+
+```text
+HWADDR=
+```
+
+with
+
+```text
+MACADDR=
+```
+
+if necessary.
+
+Ensure both files contain the same MAC address configured within Proxmox.
+
+## Verification
+
+After completing the installation:
+
+- Verify the management interface is online.
+- Confirm `bond0` has the expected IP address.
+- Verify the web interface is reachable.
+- Confirm both virtual NICs report link status.
+- Verify Proxmox firewall rules are not blocking management access.
+
+## Troubleshooting
+
+If the web interface is unreachable:
+
+- Verify the Proxmox virtual NIC MAC addresses.
+- Confirm the firewall is disabled on the virtual NIC.
+- Verify `bond0` has the expected IP configuration.
+- Confirm the virtual machine has sufficient allocated storage.
+- Verify both network adapters report an active link.
+
+> **Field Note**
+>
+> This guide documents what ultimately worked in my own lab after a considerable amount of experimentation. If you're attempting this several years after it was written, expect that some workarounds may no longer be necessary—or that new ones may have emerged. If I revisit this project in the future, I'll update the guide accordingly.
