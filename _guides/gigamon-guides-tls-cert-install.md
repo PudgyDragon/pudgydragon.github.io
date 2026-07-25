@@ -1,12 +1,12 @@
 ---
-title: "Tls Cert Install"
+title: "Gigamon TLS Certificate Installation"
 project: "Gigamon"
 category: "Engineering Guide"
-description: "A practical engineering guide for Gigamon."
+description: "Install and configure TLS certificates for Gigamon Fabric Manager and Nodes."
 source_url: "https://github.com/PudgyDragon/Gigamon/blob/main/Guides/TLS_Cert_Install.md"
 ---
 
-<h1>Installing TLS Certificates</h1>
+<h1>Introduction</h1>
 <p>This is a guide for installing TLS certificates on both the Gigamon Fabric Manager (FM) and Nodes. The online guide provided by Gigamon wasn't all encompassing. There are other guides online 
 that you can reference as well. My guide is a concatenation of guides that ended up working the way it needed to.</p>
 
