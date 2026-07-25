@@ -1,12 +1,12 @@
 ---
-title: "Misp Container"
+title: "MISP Container Deployment"
 project: "MISP"
 category: "Threat Intelligence"
-description: "A practical threat intelligence for MISP."
+description: "Deploy the Malware Information Sharing Platform (MISP) using Docker containers."
 source_url: "https://github.com/PudgyDragon/MISP/blob/main/MISP_Container.md"
 ---
 
-# MISP Container
+# Introduction
 ### Updates coming soon
 
 This is a guide for installing MISP on Docker. It assumes that you already have Docker installed. Some of the specs of the environment include:
