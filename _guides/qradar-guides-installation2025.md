@@ -1,5 +1,5 @@
 ---
-title: "Deploy IBM QRadar SIEM on Red Hat Enterprise Linux 8"
+title: "Deploy IBM QRadar SIEM on Red Hat Enterprise Linux 8 (Current Guide)"
 project: "QRadar"
 category: "Engineering Guide"
 description: "Deploy IBM QRadar SIEM 7.5 on Red Hat Enterprise Linux 8 using enterprise storage layouts for Console, Application Host, Event Processor, Flow Processor, High Availability, and QRadar Network Insights appliances."
