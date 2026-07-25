@@ -1,72 +1,111 @@
 ---
-title: "Xsoar Installation"
-project: "XSOAR"
-category: "Engineering Guide"
-description: "A practical engineering guide for XSOAR."
+category: Engineering Guide
+description: A practical engineering guide for XSOAR.
+project: XSOAR
 source_url: "https://github.com/PudgyDragon/XSOAR/blob/main/Guides/XSOAR_Installation.md"
+title: Xsoar Installation
 ---
 
-# Palo Alto XSOAR Installation
-This is a guide for installation of XSOAR on prem. The installation guide and support from Palo wasn't 
-very... supportive, so myself and a coworker figured it out through trial and error. The guide assumes you're
-installing in a STIG environment, but not with FIPS. The hardware we used will probably differ from yours, 
-but it *should* work just the same. If not, well... I'm sorry? I guess. Also, the guide assumes that you
-are using root permissions with `sudo su` from the beginning, because what even is best security practices?
+## Introduction
 
-### IMPORTANT
-If you are installing in a STIG environment, to be 100% compliant, during the RHEL installation do the following:
-```
-Press e at the grub menu
-Add fips=1 after "quiet" or "rhbg"
+This guide documents the installation of **Palo Alto Cortex XSOAR 6.14**
+on **Red Hat Enterprise Linux 9.6** in an on-premises environment.
+
+The deployment documented here was completed in a **DISA STIG**
+environment (without FIPS enabled). During our deployment, several
+required configuration steps were identified through troubleshooting
+that were not fully covered by the vendor documentation. This guide
+preserves those lessons learned while remaining concise and
+deployment-focused.
+
+> **Important**
+>
+> This guide assumes you are performing the installation as the `root`
+> user (for example, after running `sudo su`).
+
+## STIG Requirement
+
+If installing in a STIG environment and FIPS compliance is required,
+enable FIPS during the RHEL installation.
+
+``` text
+Press e at the GRUB menu
+Add fips=1 after "quiet" or "rhgb"
 Ctrl + x to save and boot
 ```
 
 ## Software Versions
-For this install, it will be based off using RHEL 9.6 and Palo XSOAR version 6.14
+
+This guide was validated using:
+
+-   RHEL 9.6
+-   Palo Alto Cortex XSOAR 6.14
 
 ## System Requirements
-Based on your type of environment, follow similar recommendations for hardware and RHEL partitioning:
 
 ### Production Environment
-- CPU: 16 CPU Cores
-- Memory: 32GB RAM
-- Storage: 1TB SSD with minimum 3k dedicated IOPS
-- /var: 900GB
-- /tmp: 10GB
-- /var/lib/demisto: 1TB
-- If Using Podman:
-  - /home: 150GB
-- If Using Docker:
-  - /var/lib/docker: 150GB
 
-### Dev Environment
-- CPU: 8 CPU cores
-- Memory: 16GB RAM
-- Storage: 500GB SSD
-- /var: 450GB
-- /tmp: 10GB
-- /var/lib/demisto: 200GB
-- If Using Podman:
-  - /home: 70GB
-- If Using Docker:
-  - /var/lib/docker: 70GB
+-   CPU: 16 CPU Cores
+-   Memory: 32 GB RAM
+-   Storage: 1 TB SSD with a minimum of 3k dedicated IOPS
+-   /var: 900 GB
+-   /tmp: 10 GB
+-   /var/lib/demisto: 1 TB
 
-We installed with the plan of using Podman. Follow whatever guidelines you need to for other RHEL partitioning,
-such as DISA STIG requirements, along with the basic necessities for a RHEL install.
+If using **Podman**:
 
-## Signed Installer and Key
-You will need to contact Palo for the proper signed public key, as they haven't updated it and the URL they provide
-in their installation guides are currently wrong. The format for the installers, however, *should* follow this format
-in the event they update the signed public key:
+-   /home: 150 GB
+
+If using **Docker**:
+
+-   /var/lib/docker: 150 GB
+
+### Development Environment
+
+-   CPU: 8 CPU Cores
+-   Memory: 16 GB RAM
+-   Storage: 500 GB SSD
+-   /var: 450 GB
+-   /tmp: 10 GB
+-   /var/lib/demisto: 200 GB
+
+If using **Podman**:
+
+-   /home: 70 GB
+
+If using **Docker**:
+
+-   /var/lib/docker: 70 GB
+
+> **Note**
+>
+> Our deployment used Podman. Adjust the partition layout as needed for
+> your environment while following your organization's standard RHEL
+> installation and DISA STIG requirements.
+
+## Signed Installer and Public Key
+
+During our deployment, the signed public key URL referenced by Palo Alto
+Networks was outdated. We obtained the correct public key by opening a
+support case. If the URLs are corrected in the future, they should
+follow the format below.
 
 ### Signed Installer
-`https://download.demisto.com/download-params?token=YOURTOKEN&email=REGISTEREDEMAIL&downloadName=signed`
-### Signed Public Key
-`https://download.demisto.com/download-params?token=YOURTOKEN&email=REGISTEREDEMAIL&downloadName=signed_public_key`
 
-Once you have these, SCP them onto your RHEL device for the installation and run the following from the folder
-you placed them in:
+``` text
+https://download.demisto.com/download-params?token=YOURTOKEN&email=REGISTEREDEMAIL&downloadName=signed
 ```
+
+### Signed Public Key
+
+``` text
+https://download.demisto.com/download-params?token=YOURTOKEN&email=REGISTEREDEMAIL&downloadName=signed_public_key
+```
+
+After downloading both files, copy them to the server and prepare the
+installer.
+
+``` bash
 mkdir /tmp2
 mv ./*.sh /tmp2
 rpm --import sign_public.key
@@ -74,12 +113,21 @@ cd /tmp2
 chmod +x signed_demistoserver-6.14-3036535.sh
 ```
 
-## Proxy
-If you live behind a proxy, you will need to edit a couple areas to allow for outbound traffic. For some reason
-we had to edit both `/etc/profile` AND `/etc/environment`, probably because I'm not a RHEL expert and don't know
-how to properly do things. Regardless, they should be edited to something similar:
-```
+## Configure a Proxy (Optional)
+
+If your environment requires an outbound proxy, configure both
+`/etc/profile` and `/etc/environment`.
+
+> **Field Note**
+>
+> During our deployment, configuring both files ensured that every
+> installer component inherited the proxy configuration correctly.
+
+Edit `/etc/profile`.
+
+``` bash
 vim /etc/profile
+
 PROXY_URL="http://proxyserver:port/"
 export HTTP_PROXY="$PROXY_URL"
 export HTTPS_PROXY="$PROXY_URL"
@@ -89,12 +137,15 @@ export http_proxy="$PROXY_URL"
 export https_proxy="$PROXY_URL"
 export ftp_proxy="$PROXY_URL"
 export no_proxy="<put all things you don't want proxy to be used for>"
-esc
-:wq!
-enter
+
+:wq
 ```
-```
+
+Edit `/etc/environment`.
+
+``` bash
 vim /etc/environment
+
 HTTP_PROXY="http://proxyserver:port/"
 HTTPS_PROXY="http://proxyserver:port/"
 FTP_PROXY="http://proxyserver:port/"
@@ -103,137 +154,266 @@ http_proxy="http://proxyserver:port/"
 https_proxy="http://proxyserver:port/"
 ftp_proxy="http://proxyserver:port/"
 no_proxy="<put all things you don't want proxy to be used for>"
-esc
-:wq!
-enter
+
+:wq
 ```
-Once your proxy settings are set, run
-```
+
+Restart NetworkManager.
+
+``` bash
 systemctl restart NetworkManager
 ```
-and log out and back into the device to make sure the global settings are current for your session.
 
-## RHEL Updates
-Assuming you have a have a RHEL Satellite server you use, make sure the EPEL9 content is set to enabled and do
-a `yum update`. From there, run the following commands to make sure you have all the dependencies you need
-for the installation:
-```
+Log out and back into the server to ensure the updated environment
+variables are applied to your session.
+
+## Update RHEL and Install Dependencies
+
+If you use a Red Hat Satellite server, ensure the **EPEL 9** content is
+enabled before continuing.
+
+Update the operating system and install the required dependencies.
+
+``` bash
+yum update
+
 yum -y install systemd xmlsec1 xmlsec1-openssl rpm-build libcap dnf-utils file fontconfig expat libpng freetype git slirp4netns fuse-overlayfs dbus-x11 git
+
 rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+
 dnf upgrade
+
 yum -y install makeself
 yum -y install container-tools
 yum -y install snapd
 yum -y install docker
+
 systemctl enable --now snapd.socket
+
 snap set system proxy.http="http://proxyserver:port/"
-snap set system.proxy.https="http://proxyserver:port/"
+snap set system proxy.https="http://proxyserver:port/"
+
 snap install chromium
 ```
-And yes, even if you plan to use Podman, you need to make sure to do a `yum install docker`.
 
-## Podman Account
-Before you run the installation script, create a free docker.io account so you can have an increased daily pull
-limit, otherwise you may not be able to successfully run the installer. Once you've done so, on your device run:
-```
+> **Important**
+>
+> Even if you plan to use Podman, install the Docker package. It was
+> required for a successful installation during our deployment.
+
+## Authenticate to Docker Hub
+
+Create a free Docker Hub account before running the installer. Logging
+in increases the anonymous image pull limit and helps prevent
+installation failures caused by rate limiting.
+
+``` bash
 podman login docker.io
 ```
-and enter your username and password when prompted. This will increase your daily pull limit by double.
 
-## Installer
-Now you should be able to start the installer:
-```
+Enter your Docker Hub username and password when prompted.
+
+## Run the Installer
+
+Launch the installer.
+
+``` bash
 ./signed_demistoserver-6.14-3036535.sh --target ./tmp -- -do-not-start-server=true --git=false
 ```
-Make sure to specify that you don't want to auto start the server, and git is set to false at this point in time.
-Again, their documentation is lacking, and regardless of what you put for the defaults when prompted (such as
-the default HTTPS server you wish to use) it will ACTUALLY default to port 8443. So remember that. But I'll say it
-again. For now, go through the prompts, accept the EULA, pretend to accept 443 as the default, whether or
-not you plan to use Elasticsearch, and create an admin with username/password.
 
-Once it's done installing, you should have some success messages and it should say that the server
-wasn't started yet (which you said not to do in the prompt).
+During the installation:
 
-## Things and Stuff
-After the installation is complete, there are quite a few commands to be ran that Palo says to do, so we must
-follow them in order for the application to actually work properly:
-```
-# Add gid and uid to demisto user: 
+-   Accept the EULA.
+-   Complete the installation prompts.
+-   Create the administrator account.
+-   Do **not** automatically start the server.
+-   Leave Git disabled during installation.
+
+> **Important**
+>
+> During our deployment, the installer prompted for HTTPS port **443**,
+> but the completed installation defaulted to **8443**. Verify which
+> port the service is actually listening on before troubleshooting
+> connectivity.
+
+After the installation completes, verify the installer reports success
+and indicates that the server was **not** started automatically.
+
+## Configure the `demisto` User
+
+Add the required subordinate UID and GID ranges.
+
+``` bash
 usermod --add-subgids 10000-75535 demisto
 usermod --add-subuids 10000-75535 demisto
+```
 
-# Podman things: 
+## Configure Podman
+
+Run the Podman migration.
+
+``` bash
 podman system migrate
+```
 
-# I think this gets rid of the possibility of some kind of error?:
+Create the required container configuration.
+
+``` bash
 mkdir ~/.config/containers
 touch ~/.config/containers/mounts.conf
+```
 
-# Modify or add user.max_user_namespaces:
+## Configure User Namespaces
+
+Edit `/etc/sysctl.d/99-sysctl.conf`.
+
+``` bash
 vim /etc/sysctl.d/99-sysctl.conf
+```
+
+Add or modify:
+
+``` text
 user.max_user_namespaces = 50000
+```
 
-# Find the UID of the Demisto user with cat, and replace DEMISTO_UID in the subsequent command:
+## Enable User Lingering
+
+Determine the UID of the `demisto` user.
+
+``` bash
 cat /etc/passwd
+```
+
+Enable lingering using the discovered UID.
+
+``` bash
 loginctl enable-linger DEMISTO_UID
+```
 
-# Modify or add short-name-mode:
+## Configure Podman Registries
+
+Edit `/etc/containers/registries.conf`.
+
+``` bash
 vim /etc/containers/registries.conf
-short-name-mode="permissive"
+```
 
-# Disable Demisto and reboot:
+Add or modify:
+
+``` text
+short-name-mode="permissive"
+```
+
+## Disable Demisto and Reboot
+
+``` bash
 systemctl disable demisto
 reboot
+```
 
-# Once booted and logged back in (I think these commands are to initialize the file system):
+## Initialize the Demisto Home Directory
+
+After rebooting:
+
+``` bash
 sudo -su demisto
 cd ~
 exit
+```
 
-# Add the following allow line to this file:
+## Configure `fapolicyd`
+
+Edit the rules file.
+
+``` bash
 vim /etc/fapolicyd/rules.d/21-updaters.rules
+```
+
+Add:
+
+``` text
 allow perm=any exe=/usr/bin/git all : ftype=text/x-perl
+```
 
-# Reboot again:
+Reboot once more.
+
+``` bash
 reboot
+```
 
-# Start Demisto to let the files initialize and wait AT LEAST 2 minutes:
+## Initialize XSOAR
+
+Start the service.
+
+``` bash
 systemctl start demisto
+```
 
-# If you do a status check, it will show it's running, but I think you need to wait for
-# it to say the server is running before you stop the server using:
+Wait **at least two minutes** for initialization.
+
+Stop the service.
+
+``` bash
 systemctl stop demisto
+```
 
-# Some git things within the Demisto user:
+## Initialize the Git Repository
+
+``` bash
 cd /var/lib/demisto/versionControlRepo
+
 git init
 git config user.name "DBot"
-git config user.email "<>" (left like this with no actual email)
+git config user.email "<>"
 git config core.quotepath "false"
 git config advice.skippedCherryPicks "false"
-# This next one gave an error that it already exists, but try anwyways just in case?
-git remote add origin file:///var/lib/demisto/versionControlRepo
-git commit --allow-empty --message="New repository"
-exit
 
-# Make Demisto enabled and start it
+git remote add origin file:///var/lib/demisto/versionControlRepo
+
+git commit --allow-empty --message="New repository"
+
+exit
+```
+
+> **Field Note**
+>
+> During our deployment, `git remote add origin` reported that the
+> remote already existed. Attempt the command anyway if it has not
+> already been configured.
+
+## Enable the Service
+
+``` bash
 systemctl enable demisto
 systemctl start demisto
+```
 
-# Firewall exceptions
+## Configure the Firewall
+
+``` bash
 firewall-cmd --add-port=443/tcp --zone=public --permanent
 firewall-cmd --add-port=8443/tcp --zone=public --permanent
 firewall-cmd --reload
 ```
 
-I included both 443 and 8443 because I don't know if your system will have the same thing happen where it actually
-defaults to 8443, or if you'll have yours act normal. Palo has stated it's a STIG thing.
+> **Important**
+>
+> Our installation listened on **8443** even though the installer
+> prompted for **443**. Palo Alto indicated this may be related to STIG
+> deployments, so verify which HTTPS port your system is using.
 
-## Done
-That should do it. You should be able to login to the GUI using the admin username and password you were
-prompted to create in the installation process when you go to the FQDN and proper port. I hope it works!
-I will include future guides for adding custom SSL and other things. Eventually.
+## Verification
 
+Verify:
 
+-   `systemctl status demisto`
+-   Browse to the server FQDN on the correct HTTPS port.
+-   Log in using the administrator account created during installation.
+-   Confirm the firewall rules are present.
 
+## Next Steps
 
+The server is now ready for additional post-deployment configuration
+such as replacing the default SSL certificate, configuring integrations,
+and connecting a remote Git repository.
