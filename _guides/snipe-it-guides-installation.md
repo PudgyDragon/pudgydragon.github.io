@@ -408,8 +408,7 @@ services:
       - proxy-net
 ```
 
-> [!WARNING]
-> 
+> [!WARNING] 
 > The FIPS compatibility file must exist before starting the application container.
 
 ## Initialize Snipe-IT
