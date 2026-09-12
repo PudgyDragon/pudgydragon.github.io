@@ -8,11 +8,8 @@ source_url: "https://github.com/PudgyDragon/Corelight/blob/main/SoftwareSensor1.
 
 ## Introduction
 
-The Corelight Software Sensor installation guide assumes direct internet connectivity when downloading packages and dependencies. In environments where outbound traffic is routed through an enterprise proxy, additional configuration is required for package managers, Docker, Git, Python, and other installation components.
-
-This guide supplements the official Corelight Software Sensor installation documentation by highlighting the additional proxy configuration required for a successful deployment.
-
-> **Note:** The examples in this guide were validated on **Red Hat Enterprise Linux (RHEL) 8.8**. They are intended to supplement, not replace, the official Corelight installation guide.
+If your organization is anything like mine, your network is probably set up with a proxy. The Corelight Software Sensor 1.0 guide doesn't have instructions for setting up behind a proxy. Hopefully this guide will help you. Please use these steps in conjunction with the original Corelight Software Sensor 1.0 guide.
+> **Note:** Please note, this installation was done on a server running RHEL 8.8h; I won't be providing the full installation guide, but will be providing snippits of what sections I have modified to include proxy configurations. Also note, before I was able to successfully get it working, we switched over to the VMware version because of a trial period. If I get the chance, I will come back to this and try to get it working fully.
 
 ## Configure the Corelight Package Repository
 
